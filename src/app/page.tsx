@@ -1,55 +1,56 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Wallet, Zap, Globe } from "lucide-react"
+import { signIn, signOut, useSession } from "next-auth/react"
 
 export default function Home() {
+
+  const session = useSession();
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="border-b">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="m-8 flex items-center gap-2">
               <Wallet className="h-6 w-6 text-cyan-500" />
-              <span className="text-xl font-bold text-cyan-500">waas</span>
+              <span className="text-xl font-bold text-cyan-500">WaaS</span>
             </Link>
-            <nav className="hidden md:flex gap-6">
-              <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                Products
-              </Link>
-              <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                API & Docs
-              </Link>
-              <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                FAQ
-              </Link>
-              <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                Company
-              </Link>
-            </nav>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="#" className="text-sm font-medium text-cyan-500 hover:underline">
-              Login to Pro
-            </Link>
-            <Button variant="outline" className="hidden sm:flex">
-              Login
-            </Button>
+            {!session.data?.user ?
+               <Button variant="outline" className="hidden sm:flex m-8 hover:bg-cyan-500 hover:text-white" onClick={() => {
+                signIn("google")
+               }}>
+                Login
+              </Button> :
+              <Button variant="outline" className="hidden sm:flex m-8 hover:bg-cyan-500 hover:text-white" onClick={() => {
+                signOut()
+               }}>
+                Log Out
+              </Button> 
+              }
           </div>
         </div>
       </header>
       <main className="flex-1">
         <section className="py-20 text-center">
           <div className="container px-4 md:px-6">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-4">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6">
               The wallet <span className="text-muted-foreground">of tomorrow,</span>{" "}
               <span className="text-cyan-500">today</span>
             </h1>
+            <p className="text-xl text-muted-foreground mb-2 max-w-2xl mx-auto">
+              Create a wallet with just a Google Account.
+            </p>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Create a frictionless wallet with just a Google Account.
+              Convert your INR to crypto easily.
             </p>
             <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600">
-              <Image src="/placeholder.svg?height=20&width=20" width={20} height={20} alt="Google" className="mr-2" />
+              <Image src="/google.svg?height=20&width=20" width={20} height={20} alt="Google" className="mr-2" />
               Sign Up with Google
             </Button>
           </div>
@@ -133,10 +134,6 @@ export default function Home() {
                       </div>
                     </li>
                   </ul>
-                  <Button className="bg-cyan-500 hover:bg-cyan-600">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
                 </div>
               </div>
             </div>
