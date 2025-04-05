@@ -1,8 +1,9 @@
+import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 async function getUserPublicKey(req: NextRequest) {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session) {
         return NextResponse.json({ message: "Unauthorized" }, {status: 401})
       }    
@@ -41,5 +42,5 @@ async function getUserPublicKey(req: NextRequest) {
 
 }
 
-export { getUserPublicKey as GET };
+export { getUserPublicKey as POST };
 

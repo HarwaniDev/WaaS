@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowRight, Copy, Download, Plus, Send, Upload, User } from "lucide-react"
 import { useSession } from "next-auth/react"
+import axios from "axios";
 export default function Dashboard() {
     const session = useSession();
     // implement below if condition so that only logged in user can visit the page.
@@ -17,8 +18,16 @@ export default function Dashboard() {
 
     useEffect(() => {
         async function getPublicKey() {
-            // const { data } = await axios.get()
+            const response = await axios.post("http://localhost:3000/api/getUserPubKey", {
+                name: session.data?.user?.name
+            });
+            console.log(response);
         }
+        const timeout = setTimeout(() => {
+            getPublicKey();
+        }, 5000);
+        // clearTimeout(timeout);
+        
     }, [session])
 
     const [walletAddress, setWalletAddress] = useState("0x1234...5678")
