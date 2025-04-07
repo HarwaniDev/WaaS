@@ -1,6 +1,7 @@
 import { Keypair } from "@solana/web3.js";
 import { AuthOptions } from "next-auth";
 import Google from "next-auth/providers/google";
+import prisma from "./prisma";
 
 export const authOptions: AuthOptions = {
     providers: [
@@ -9,6 +10,11 @@ export const authOptions: AuthOptions = {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? ""
       })
     ],
+    session: {
+      strategy: "jwt",
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    },
+    secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
       async signIn({ user }) {
         if (!user.email) {
@@ -45,7 +51,12 @@ export const authOptions: AuthOptions = {
         }
   
         return true;
+      },
+      async session({ session, token }) {
+        if (session?.user) {
+          session.user.id = token.sub;
+        }
+        return session;
       }
     }
-  
   }
