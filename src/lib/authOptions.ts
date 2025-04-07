@@ -40,11 +40,6 @@ export const authOptions: AuthOptions = {
                   publicKey: publicKey,
                   privateKey: privateKey
                 }
-              },
-              inrWallet: {
-                create: {
-                  balance: 0
-                }
               }
             }
           })

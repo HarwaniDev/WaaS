@@ -15,23 +15,27 @@ export default function Dashboard() {
     // if(session.data?.user) {
     //     return <></>
     // }
+    
+    const [walletAddress, setWalletAddress] = useState("");
+    const [balance, setBalance] = useState("1,234.56");
+    
 
     useEffect(() => {
         async function getPublicKey() {
             const response = await axios.post("http://localhost:3000/api/getUserPubKey", {
                 name: session.data?.user?.name
             });
-            console.log(response);
+            setWalletAddress(response.data.publicKey);
         }
         const timeout = setTimeout(() => {
             getPublicKey();
         }, 5000);
-        // clearTimeout(timeout);
-        
-    }, [session])
 
-    const [walletAddress, setWalletAddress] = useState("0x1234...5678")
-    const [balance, setBalance] = useState("1,234.56")
+        return () => {
+        clearTimeout(timeout);
+        }
+    }, [session]);
+
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(walletAddress)
@@ -68,7 +72,7 @@ export default function Dashboard() {
                                     <div>
                                         <h2 className="text-sm font-medium opacity-80">Your Wallet</h2>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <p className="text-sm">{walletAddress}</p>
+                                            <p className="text-sm">{walletAddress.slice(0,3)}...{walletAddress.slice(-3)}</p>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"

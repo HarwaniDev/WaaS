@@ -39,6 +39,7 @@ async function getUserPublicKey(req: NextRequest) {
                 name: name
             }
         });
+        
 
         if (!targetUser) {
             return NextResponse.json({ 
@@ -60,17 +61,14 @@ async function getUserPublicKey(req: NextRequest) {
         }
 
         return NextResponse.json({
+            
             publicKey: wallet.publicKey
-        }, {
-            status: 200
-        })
+        }, { status: 200 })
     } catch (error) {
         console.error("Error in getUserPublicKey:", error);
         return NextResponse.json({
             error: "Internal server error"
-        }, {
-            status: 500
-        })
+        }, { status: 500 })
     }
 }
 
