@@ -17,7 +17,7 @@ export default function Dashboard() {
     // }
     
     const [walletAddress, setWalletAddress] = useState("");
-    const [balance, setBalance] = useState("1,234.56");
+    const [balance, setBalance] = useState("");
     
 
     useEffect(() => {
@@ -27,10 +27,32 @@ export default function Dashboard() {
             });
             setWalletAddress(response.data.publicKey);
         }
+
+        async function getAssets() {
+            console.log(process.env.HELIUS_API_KEY);
+            
+            const response = await axios.post(`https://mainnet.helius-rpc.com/?${process.env.HELIUS_API_KEY}`, {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getTokenAccountsByOwner",
+                "params": [
+                  walletAddress,
+                  {
+                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                  },
+                  {
+                    "encoding": "jsonParsed"
+                  }
+                ]
+              });
+            console.log(response);
+        }
+
         const timeout = setTimeout(() => {
             getPublicKey();
+            getAssets();
         }, 5000);
-
+        
         return () => {
         clearTimeout(timeout);
         }

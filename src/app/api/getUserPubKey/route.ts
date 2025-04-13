@@ -20,7 +20,6 @@ async function getUserPublicKey(req: NextRequest) {
             }, { status: 400 });
         }
 
-        // First get the requesting user
         const requestingUser = await prisma.user.findFirst({
             where: {
                 email: session.user.email
@@ -33,7 +32,6 @@ async function getUserPublicKey(req: NextRequest) {
             }, { status: 404 });
         }
 
-        // Then get the target user
         const targetUser = await prisma.user.findFirst({
             where: {
                 name: name
@@ -46,6 +44,12 @@ async function getUserPublicKey(req: NextRequest) {
                 error: "User not found" 
             }, { status: 404 });
         }
+
+        if(requestingUser !== targetUser) {
+            return NextResponse.json({
+                error: "You dont have the authority to get another person's key details"
+            }, {status: 301})
+        };
 
         // Get the wallet
         const wallet = await prisma.solWallet.findFirst({
@@ -61,7 +65,6 @@ async function getUserPublicKey(req: NextRequest) {
         }
 
         return NextResponse.json({
-            
             publicKey: wallet.publicKey
         }, { status: 200 })
     } catch (error) {
