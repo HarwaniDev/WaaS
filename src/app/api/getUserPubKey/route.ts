@@ -11,10 +11,10 @@ async function getUserPublicKey(req: NextRequest) {
     }    
 
     try {
-        const { name } = await req.json();
+        const { email } = await req.json();
         
         // Input validation
-        if (!name || typeof name !== 'string' || name.length > 100) {
+        if (!email || typeof email !== 'string' || email.length > 100) {
             return NextResponse.json({ 
                 error: "Invalid input" 
             }, { status: 400 });
@@ -34,7 +34,7 @@ async function getUserPublicKey(req: NextRequest) {
 
         const targetUser = await prisma.user.findFirst({
             where: {
-                name: name
+                email: email
             }
         });
         
@@ -45,10 +45,10 @@ async function getUserPublicKey(req: NextRequest) {
             }, { status: 404 });
         }
 
-        if(requestingUser !== targetUser) {
+        if(requestingUser.id !== targetUser.id) {
             return NextResponse.json({
-                error: "You dont have the authority to get another person's key details"
-            }, {status: 301})
+                error: "You don't have the authority to get another person's key details"
+            }, {status: 403})
         };
 
         // Get the wallet

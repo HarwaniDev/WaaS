@@ -22,8 +22,9 @@ export default function Dashboard() {
 
     useEffect(() => {
         async function getPublicKey() {
+            
             const response = await axios.post("http://localhost:3000/api/getUserPubKey", {
-                name: session.data?.user?.name
+                email: session.data?.user?.email
             });
             setWalletAddress(response.data.publicKey);
         }
@@ -50,7 +51,7 @@ export default function Dashboard() {
 
         const timeout = setTimeout(() => {
             getPublicKey();
-            getAssets();
+            // getAssets();
         }, 5000);
         
         return () => {

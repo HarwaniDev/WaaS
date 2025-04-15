@@ -23,12 +23,12 @@ export default function Home() {
           <div className="flex items-center gap-4">
             {!session.data?.user ?
                <Button variant="outline" className="hidden sm:flex m-8 hover:bg-cyan-500 hover:text-white" onClick={() => {
-                signIn("google")
+                signIn("google", {callbackUrl: "http://localhost:3000/dashboard"})
                }}>
                 Login
               </Button> :
               <Button variant="outline" className="hidden sm:flex m-8 hover:bg-cyan-500 hover:text-white" onClick={() => {
-                signOut()
+                signOut({callbackUrl: "http://localhost:3000"})
                }}>
                 Log Out
               </Button> 
