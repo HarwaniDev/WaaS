@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowRight, Copy, Download, Plus, Send, Upload, User } from "lucide-react"
 import { useSession } from "next-auth/react"
 import axios from "axios";
+import { TokenInterface } from "@/lib/interfaces"
+import { getSolanaPrice } from "@/utils/getSolPrice"
 export default function Dashboard() {
     const session = useSession();
     // implement below if condition so that only logged in user can visit the page.
@@ -15,47 +17,53 @@ export default function Dashboard() {
     // if(session.data?.user) {
     //     return <></>
     // }
-    
+
     const [walletAddress, setWalletAddress] = useState("");
     const [balance, setBalance] = useState("");
-    
+    const [fungibleTokens, setFungibleTokens] = useState<TokenInterface[]>([]);
+    const [nonFungibleTokens, setNonFungibleTokens] = useState<TokenInterface[]>([]);
+    const [solBalance, setSolBalance] = useState(0);
+    const [solPrice, setSolPrice] = useState(0);
+
 
     useEffect(() => {
-        async function getPublicKey() {
-            
+        if (session.status === "loading") {
+            return;
+        }
+
+         (async function() {
+            const price: number = await getSolanaPrice();
+            setSolPrice(price);
+        })();
+
+        async function getPublicKey(): Promise<string> {
+
             const response = await axios.post("http://localhost:3000/api/getUserPubKey", {
                 email: session.data?.user?.email
             });
+
             setWalletAddress(response.data.publicKey);
+            return response.data.publicKey;
         }
 
         async function getAssets() {
-            console.log(process.env.HELIUS_API_KEY);
-            
-            const response = await axios.post(`https://mainnet.helius-rpc.com/?${process.env.HELIUS_API_KEY}`, {
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "getTokenAccountsByOwner",
-                "params": [
-                  walletAddress,
-                  {
-                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                  },
-                  {
-                    "encoding": "jsonParsed"
-                  }
-                ]
-              });
-            console.log(response);
-        }
+            const walletAddress = await getPublicKey();
+            const response = await axios.post("http://localhost:3000/api/getAssets", {
+                publicKey: walletAddress
+            })
+            setSolBalance(response.data.solBalance);
+            setFungibleTokens(response.data.fungibleTokens);
+            setNonFungibleTokens(response.data.nonFungibleTokens);
+        };
+
+
 
         const timeout = setTimeout(() => {
-            getPublicKey();
-            // getAssets();
+            getAssets();
         }, 5000);
-        
+
         return () => {
-        clearTimeout(timeout);
+            clearTimeout(timeout);
         }
     }, [session]);
 
@@ -95,7 +103,7 @@ export default function Dashboard() {
                                     <div>
                                         <h2 className="text-sm font-medium opacity-80">Your Wallet</h2>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <p className="text-sm">{walletAddress.slice(0,3)}...{walletAddress.slice(-3)}</p>
+                                            <p className="text-sm">{walletAddress.slice(0, 3)}...{walletAddress.slice(-3)}</p>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
@@ -150,22 +158,43 @@ export default function Dashboard() {
                                     </div>
                                     <TabsContent value="assets" className="p-6 space-y-6 m-0">
                                         <div className="grid gap-4">
-                                            {/* Asset Item */}
+                                            {solBalance > 0 && 
                                             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-full bg-cyan-100 flex items-center justify-center">
-                                                        <span className="font-bold text-cyan-500">$</span>
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium">USD Coin</p>
-                                                        <p className="text-sm text-muted-foreground">USDC</p>
-                                                    </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                                    <span className="font-bold text-amber-500">Sol</span>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="font-medium">1,000.00</p>
-                                                    <p className="text-sm text-muted-foreground">$1,000.00</p>
+                                                <div>
+                                                    <p className="font-medium">Solana</p>
+                                                    <p className="text-sm text-muted-foreground">Sol</p>
                                                 </div>
                                             </div>
+                                            <div className="text-right">
+                                                <p className="font-medium">{solBalance}</p>
+                                                <p className="text-sm text-muted-foreground">{solBalance * solPrice}</p>
+                                            </div>
+                                        </div>}
+
+                                            {fungibleTokens.map((token, key) => {
+                                                return (
+                                                    <div key={key} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="h-10 w-10 rounded-full bg-cyan-100 flex items-center justify-center">
+                                                                <span className="font-bold text-cyan-500">$</span>
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-medium">USD Coin</p>
+                                                                <p className="text-sm text-muted-foreground">USDC</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <p className="font-medium">{token.amount}</p>
+                                                            <p className="text-sm text-muted-foreground">$1,000.00</p>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                            {/* Asset Item */}
 
                                             {/* Asset Item */}
                                             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
@@ -183,12 +212,6 @@ export default function Dashboard() {
                                                     <p className="text-sm text-muted-foreground">$234.56</p>
                                                 </div>
                                             </div>
-
-                                            {/* Add Asset Button */}
-                                            <Button variant="outline" className="flex items-center gap-2 w-full">
-                                                <Plus className="h-4 w-4" />
-                                                Add Asset
-                                            </Button>
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="activity" className="p-6 space-y-6 m-0">

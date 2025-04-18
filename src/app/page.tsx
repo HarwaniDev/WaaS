@@ -11,6 +11,7 @@ export default function Home() {
   const session = useSession();
 
   return (
+
     <div className="flex flex-col min-h-screen">
       <header className="border-b">
         <div className="container flex h-16 items-center justify-between">
@@ -44,14 +45,14 @@ export default function Home() {
               <span className="text-cyan-500">today</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-2 max-w-2xl mx-auto">
-              Create a wallet with just a Google Account.
+              Create a wallet with just a Google Account
             </p>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Convert your INR to crypto easily.
+              Custodial cloud wallet for you
             </p>
             <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600">
               <Image src="/google.svg?height=20&width=20" width={20} height={20} alt="Google" className="mr-2" />
-              Sign Up with Google
+              Get started
             </Button>
           </div>
         </section>
@@ -63,21 +64,21 @@ export default function Home() {
                 <div className="h-10 w-10 bg-cyan-100 rounded-md flex items-center justify-center mb-4">
                   <Wallet className="h-5 w-5 text-cyan-500" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">waas Wallet Adapter</h3>
+                <h3 className="text-lg font-bold mb-2">WaaS Wallet Adapter</h3>
                 <p className="text-sm text-muted-foreground">Make blockchain apps consumer-ready.</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="h-10 w-10 bg-cyan-100 rounded-md flex items-center justify-center mb-4">
                   <Zap className="h-5 w-5 text-cyan-500" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">waas Pro</h3>
+                <h3 className="text-lg font-bold mb-2">WaaS Pro</h3>
                 <p className="text-sm text-muted-foreground">Send digital assets at scale, even to non-crypto users.</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="h-10 w-10 bg-cyan-100 rounded-md flex items-center justify-center mb-4">
                   <Globe className="h-5 w-5 text-cyan-500" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">waas Wallet</h3>
+                <h3 className="text-lg font-bold mb-2">WaaS Wallet</h3>
                 <p className="text-sm text-muted-foreground">The world's simplest wallet.</p>
               </div>
             </div>
