@@ -9,7 +9,7 @@ import { ArrowRight, Copy, Download, Plus, Send, Upload, User } from "lucide-rea
 import { useSession } from "next-auth/react"
 import axios from "axios";
 import { TokenInterface } from "@/lib/interfaces"
-import { getSolanaPrice } from "@/utils/getSolPrice"
+import { getQuote, getSolanaPrice } from "@/utils/helpers"
 export default function Dashboard() {
     const session = useSession();
     // implement below if condition so that only logged in user can visit the page.
@@ -189,7 +189,7 @@ export default function Dashboard() {
                                                         </div>
                                                         <div className="text-right">
                                                             <p className="font-medium">{token.amount}</p>
-                                                            <p className="text-sm text-muted-foreground">$1,000.00</p>
+                                                            <p className="text-sm text-muted-foreground">$1000</p>
                                                         </div>
                                                     </div>
                                                 )

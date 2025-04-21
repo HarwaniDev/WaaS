@@ -57,41 +57,44 @@ async function getAssets(req: NextRequest) {
       }, { status: 301 })
     };
 
-    const tokenAccountResponse = await axios.post(`https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "method": "getTokenAccountsByOwner",
-      "params": [
-        publicKey,
-        {
-          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-        },
-        {
-          "encoding": "jsonParsed"
-        }
-      ]
-    });
+    const [balanceResponse, tokenAccountResponse] = await Promise.all([
+      axios.post(`https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getBalance",
+        "params": [
+          publicKey
+        ]
+      }),
+      axios.post(`https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getTokenAccountsByOwner",
+        "params": [
+          publicKey,
+          {
+            "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          },
+          {
+            "encoding": "jsonParsed"
+          }
+        ]
+      })
 
-    const balanceResponse = await axios.post(`https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "method": "getBalance",
-      "params": [
-        publicKey
-      ]
-    });
+    ]);
 
     const lamports = balanceResponse.data.result.value;
     const fungibleTokens: TokenInterface[] = [];
     const nonFungibleTokens: TokenInterface[] = [];
 
-    tokenAccountResponse.data.result.value.map((token: any) => {
-      if (token.account.data.parsed.info.tokenAmount.amount === "1" && token.account.data.parsed.info.tokenAmount.decimals === 0) {
-        nonFungibleTokens.push({ mintAddress: token.account.data.parsed.info.mint, amount: token.account.data.parsed.info.tokenAmount.uiAmount });
-      } else {
-        fungibleTokens.push({ mintAddress: token.account.data.parsed.info.mint, amount: token.account.data.parsed.info.tokenAmount.uiAmount });
-      }
-    })
+
+    // tokenAccountResponse.data.result.value.map((token: any) => {
+    //   if (token.account.data.parsed.info.tokenAmount.amount === "1" && token.account.data.parsed.info.tokenAmount.decimals === 0) {
+    //     nonFungibleTokens.push({ mintAddress: token.account.data.parsed.info.mint, amount: token.account.data.parsed.info.tokenAmount.uiAmount });
+    //   } else {
+    //     fungibleTokens.push({ mintAddress: token.account.data.parsed.info.mint, amount: token.account.data.parsed.info.tokenAmount.uiAmount });
+    //   }
+    // })
 
     return NextResponse.json({
       solBalance: lamports / LAMPORTS_PER_SOL,

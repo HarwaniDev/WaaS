@@ -1,5 +1,9 @@
 export interface TokenInterface {
-    mintAddress: string
-    amount: number
+    name?: string;
+    symbol?: string;
+    mintAddress: string;
+    amount: number;
+    decimals?: string;
+    pricePerToken?: string
 }
 
