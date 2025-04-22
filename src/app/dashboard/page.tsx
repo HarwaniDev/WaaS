@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowRight, Copy, Download, Plus, Send, Upload, User } from "lucide-react"
 import { useSession } from "next-auth/react"
 import axios from "axios";
-import { TokenInterface } from "@/lib/interfaces"
+import { Token } from "@/lib/interfaces"
 import { getQuote, getSolanaPrice } from "@/utils/helpers"
 export default function Dashboard() {
     const session = useSession();
@@ -20,8 +20,8 @@ export default function Dashboard() {
 
     const [walletAddress, setWalletAddress] = useState("");
     const [balance, setBalance] = useState("");
-    const [fungibleTokens, setFungibleTokens] = useState<TokenInterface[]>([]);
-    const [nonFungibleTokens, setNonFungibleTokens] = useState<TokenInterface[]>([]);
+    const [fungibleTokens, setFungibleTokens] = useState<{token:Token[], amount: number}>();
+    const [nonFungibleTokens, setNonFungibleTokens] = useState<{token:Token[], amount: number}>();
     const [solBalance, setSolBalance] = useState(0);
     const [solPrice, setSolPrice] = useState(0);
 
@@ -175,7 +175,7 @@ export default function Dashboard() {
                                             </div>
                                         </div>}
 
-                                            {fungibleTokens.map((token, key) => {
+                                            {fungibleTokens?.token.map((token, key) => {
                                                 return (
                                                     <div key={key} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                                                         <div className="flex items-center gap-3">
@@ -188,7 +188,7 @@ export default function Dashboard() {
                                                             </div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <p className="font-medium">{token.amount}</p>
+                                                            <p className="font-medium">{token}</p>
                                                             <p className="text-sm text-muted-foreground">$1000</p>
                                                         </div>
                                                     </div>

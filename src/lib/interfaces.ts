@@ -1,9 +1,8 @@
-export interface TokenInterface {
-    name?: string;
-    symbol?: string;
+export interface Token {
+    name: string;
+    symbol: string;
     mintAddress: string;
-    amount: number;
-    decimals?: string;
-    pricePerToken?: string
+    decimals: number;
+    pricePerToken: string;
 }
 

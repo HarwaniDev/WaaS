@@ -4,61 +4,63 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import axios from "axios";
 import bs58 from "bs58";
-import { TokenInterface } from "@/lib/interfaces";
+import { Token } from "@/lib/interfaces";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { getAssetDetails } from "@/utils/helpers";
+import { getAsset } from "node:sea";
 async function getAssets(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.email) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-  };
+  // if (!session?.user?.email) {
+  //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+  // };
 
   try {
     const { publicKey } = await req.json();
 
     // Input validation
-    if (!publicKey || typeof publicKey !== 'string' || publicKey.length > 44) {
-      return NextResponse.json({
-        error: "Invalid input"
-      }, { status: 400 });
-    };
+    // if (!publicKey || typeof publicKey !== 'string' || publicKey.length > 44) {
+    //   return NextResponse.json({
+    //     error: "Invalid input"
+    //   }, { status: 400 });
+    // };
 
-    const requestingUser = await prisma.user.findFirst({
-      where: {
-        email: session.user.email
-      }
-    });
+    // const requestingUser = await prisma.user.findFirst({
+    //   where: {
+    //     email: session.user.email
+    //   }
+    // });
 
-    if (!requestingUser) {
-      return NextResponse.json({
-        error: "User not found"
-      }, { status: 404 });
-    };
+    // if (!requestingUser) {
+    //   return NextResponse.json({
+    //     error: "User not found"
+    //   }, { status: 404 });
+    // };
 
-    const targetUser = await prisma.user.findFirst({
-      where: {
-        solWallet: {
-          publicKey: publicKey
-        }
-      }
-    });
-
-
-    if (!targetUser) {
-      return NextResponse.json({
-        error: "Wallet not found"
-      }, { status: 404 });
-    }
+    // const targetUser = await prisma.user.findFirst({
+    //   where: {
+    //     solWallet: {
+    //       publicKey: publicKey
+    //     }
+    //   }
+    // });
 
 
-    if (requestingUser.id !== targetUser.id) {
-      return NextResponse.json({
-        error: "You dont have the authority to get another person's key details"
-      }, { status: 301 })
-    };
+    // if (!targetUser) {
+    //   return NextResponse.json({
+    //     error: "Wallet not found"
+    //   }, { status: 404 });
+    // }
+
+
+    // if (requestingUser.id !== targetUser.id) {
+    //   return NextResponse.json({
+    //     error: "You dont have the authority to get another person's key details"
+    //   }, { status: 301 })
+    // };
 
     const [balanceResponse, tokenAccountResponse] = await Promise.all([
-      axios.post(`https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
+      axios.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
         "jsonrpc": "2.0",
         "id": 1,
         "method": "getBalance",
@@ -66,7 +68,7 @@ async function getAssets(req: NextRequest) {
           publicKey
         ]
       }),
-      axios.post(`https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
+      axios.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
         "jsonrpc": "2.0",
         "id": 1,
         "method": "getTokenAccountsByOwner",
@@ -84,22 +86,40 @@ async function getAssets(req: NextRequest) {
     ]);
 
     const lamports = balanceResponse.data.result.value;
-    const fungibleTokens: TokenInterface[] = [];
-    const nonFungibleTokens: TokenInterface[] = [];
+
+    // const fungibleTokens: { token: Token, amount: number }[] = [];
+    // const nonFungibleTokens: { token: Token, amount: number }[] = [];
 
 
-    // tokenAccountResponse.data.result.value.map((token: any) => {
+
+    // tokenAccountResponse.data.result.value.map(async (token: any) => {
     //   if (token.account.data.parsed.info.tokenAmount.amount === "1" && token.account.data.parsed.info.tokenAmount.decimals === 0) {
-    //     nonFungibleTokens.push({ mintAddress: token.account.data.parsed.info.mint, amount: token.account.data.parsed.info.tokenAmount.uiAmount });
+    //     const response = await getAssetDetails(token.account.data.parsed.info.mint);
+    //     if (!response) {
+    //       return;
+    //     }
+    //     nonFungibleTokens.push({ token: response, amount: token.account.data.parsed.info.tokenAmount.uiAmount })
     //   } else {
-    //     fungibleTokens.push({ mintAddress: token.account.data.parsed.info.mint, amount: token.account.data.parsed.info.tokenAmount.uiAmount });
-    //   }
-    // })
 
+    //     const response = await getAssetDetails(token.account.data.parsed.info.mint);
+    //     if (!response) {
+    //       return;
+    //     }
+    //     fungibleTokens.push({ token: response, amount: token.account.data.parsed.info.tokenAmount.uiAmount });
+    //   }
+    // });
+
+
+    const promises = tokenAccountResponse.data.result.value.map((token: any) => {
+      return getAssetDetails(token.account.data.parsed.info.mint, token.account.data.parsed.info.tokenAmount.uiAmount);
+    });
+
+    const result = await Promise.all(promises.filter((p: Promise<any>) => p !== undefined));
+    console.log(result);
+    
     return NextResponse.json({
       solBalance: lamports / LAMPORTS_PER_SOL,
-      fungibleTokens: fungibleTokens,
-      nonFungibleTokens: nonFungibleTokens
+      result
     }, { status: 200 });
 
 
