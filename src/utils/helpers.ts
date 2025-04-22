@@ -54,10 +54,11 @@ export async function getAssetDetails(mintAddress: string, amount: number) {
             symbol: response.data.result.content.metadata.symbol as string,
             mintAddress: mintAddress as string,
             decimals: response.data.result.token_info.decimals as number,
-            amount: amount as number
+            amount: amount as number,
+            // pricePerToken: response.data.result.token_info.price_info.price_per_token as number
         }
     } catch (error: any) {
-        console.log("error getting asset details",error.response);
+        console.log("error getting asset details",error);
         return 0;
     }
 }
