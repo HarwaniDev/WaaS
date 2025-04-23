@@ -20,8 +20,7 @@ export default function Dashboard() {
 
     const [walletAddress, setWalletAddress] = useState("");
     const [balance, setBalance] = useState("");
-    const [fungibleTokens, setFungibleTokens] = useState<{token:Token[], amount: number}>();
-    const [nonFungibleTokens, setNonFungibleTokens] = useState<{token:Token[], amount: number}>();
+    const [tokens, setTokens] = useState<Token[]>();
     const [solBalance, setSolBalance] = useState(0);
     const [solPrice, setSolPrice] = useState(0);
 
@@ -52,8 +51,7 @@ export default function Dashboard() {
                 publicKey: walletAddress
             })
             setSolBalance(response.data.solBalance);
-            setFungibleTokens(response.data.fungibleTokens);
-            setNonFungibleTokens(response.data.nonFungibleTokens);
+            setTokens(response.data.result);
         };
 
 
@@ -175,21 +173,21 @@ export default function Dashboard() {
                                             </div>
                                         </div>}
 
-                                            {fungibleTokens?.token.map((token, key) => {
+                                            {tokens?.map((token, key) => {
                                                 return (
                                                     <div key={key} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                                                         <div className="flex items-center gap-3">
                                                             <div className="h-10 w-10 rounded-full bg-cyan-100 flex items-center justify-center">
-                                                                <span className="font-bold text-cyan-500">$</span>
+                                                                <img src={token.imageLink} alt="" />
                                                             </div>
                                                             <div>
-                                                                <p className="font-medium">USD Coin</p>
-                                                                <p className="text-sm text-muted-foreground">USDC</p>
+                                                                <p className="font-medium">{token.name}</p>
+                                                                <p className="text-sm text-muted-foreground">{token.symbol}</p>
                                                             </div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <p className="font-medium">{token}</p>
-                                                            <p className="text-sm text-muted-foreground">$1000</p>
+                                                            <p className="font-medium">{token.amount}</p>
+                                                            <p className="text-sm text-muted-foreground">${token.amount * token.pricePerToken}</p>
                                                         </div>
                                                     </div>
                                                 )

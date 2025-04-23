@@ -3,6 +3,8 @@ export interface Token {
     symbol: string;
     mintAddress: string;
     decimals: number;
-    pricePerToken: string;
+    pricePerToken: number;
+    amount: number;
+    imageLink: string;
 }
 

@@ -73,7 +73,7 @@ async function getAssets(req: NextRequest) {
         "id": 1,
         "method": "getTokenAccountsByOwner",
         "params": [
-          publicKey,
+          "79tM5CMu6RxGW2MGx7UnDnYnsrCjiiF7yunuD18G7vJG",
           {
             "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           },
