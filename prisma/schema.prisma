@@ -14,20 +14,32 @@ datasource db {
 }
 
 model User {
-  id              String    @id  @default(uuid())  
-  email           String
-  name            String?
-  profilePicture  String?
-  solWallet       SolWallet?
+  id             String        @id @default(uuid())
+  email          String
+  name           String?
+  profilePicture String?
+  solWallet      SolWallet?
 }
-
 
 model SolWallet {
-  id          String   @id  @default(uuid())
-  publicKey   String
-  privateKey  String
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id])
+  id           String        @id @default(uuid())
+  publicKey    String        @unique
+  privateKey   String        @unique
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
 }
 
-
+model Transaction {
+  id          String    @id @default(uuid())
+  signature   String    @unique
+  timestamp   DateTime
+  sender      String
+  reciever    String
+  amount      String
+  fees        BigInt
+  solWalletId String
+  solWallet   SolWallet @relation(fields: [solWalletId], references: [id])
+  createdAt   DateTime  @default(now()) 
+  updatedAt   DateTime  @updatedAt
+}
