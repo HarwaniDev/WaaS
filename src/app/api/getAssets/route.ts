@@ -65,7 +65,8 @@ async function getAssets(req: NextRequest) {
         "id": 1,
         "method": "getBalance",
         "params": [
-          publicKey
+          // add public key parameter here
+          "GFnj2iGG9F1bMXzxUxV79yW79mmYQN2XYv3wLftpfK9U"
         ]
       }),
       axios.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
@@ -73,7 +74,7 @@ async function getAssets(req: NextRequest) {
         "id": 1,
         "method": "getTokenAccountsByOwner",
         "params": [
-          "79tM5CMu6RxGW2MGx7UnDnYnsrCjiiF7yunuD18G7vJG",
+          "GFnj2iGG9F1bMXzxUxV79yW79mmYQN2XYv3wLftpfK9U",
           {
             "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           },
@@ -88,13 +89,13 @@ async function getAssets(req: NextRequest) {
     const lamports = balanceResponse.data.result.value;
 
     const promises = tokenAccountResponse.data.result.value.map((token: any) => {
-      if(token.account.data.parsed.info.tokenAmount.uiAmount === 0) {
+      if (token.account.data.parsed.info.tokenAmount.uiAmount === 0) {
         return;
       }
       return getAssetDetails(token.account.data.parsed.info.mint, token.account.data.parsed.info.tokenAmount.uiAmount);
     });
 
-    const result = await Promise.all(promises.filter((p: Promise<any>) => p !== undefined));    
+    const result = await Promise.all(promises.filter((p: Promise<any>) => p !== undefined));
     return NextResponse.json({
       solBalance: lamports / LAMPORTS_PER_SOL,
       result

@@ -52,6 +52,7 @@ export default function Dashboard() {
             })
             setSolBalance(response.data.solBalance);
             setTokens(response.data.result);
+            // setBalance(response.data)
         };
 
 
@@ -156,11 +157,10 @@ export default function Dashboard() {
                                     </div>
                                     <TabsContent value="assets" className="p-6 space-y-6 m-0">
                                         <div className="grid gap-4">
-                                            {solBalance > 0 && 
                                             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
-                                                    <span className="font-bold text-amber-500">Sol</span>
+                                                <div className="h-10 w-10 rounded-full flex items-center justify-center">
+                                                    <img src="solana.png" alt="" className="rounded-full" />
                                                 </div>
                                                 <div>
                                                     <p className="font-medium">Solana</p>
@@ -168,12 +168,14 @@ export default function Dashboard() {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="font-medium">{solBalance}</p>
-                                                <p className="text-sm text-muted-foreground">{solBalance * solPrice}</p>
+                                                <p className="font-medium">{Number(solBalance).toFixed(2)}</p>
+                                                <p className="text-sm text-muted-foreground">${(solBalance * solPrice).toFixed(2)}</p>
                                             </div>
-                                        </div>}
-
+                                        </div>
                                             {tokens?.map((token, key) => {
+                                                if(!token.name) {
+                                                    return;
+                                                }
                                                 return (
                                                     <div key={key} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                                                         <div className="flex items-center gap-3">
@@ -186,30 +188,12 @@ export default function Dashboard() {
                                                             </div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <p className="font-medium">{token.amount}</p>
-                                                            <p className="text-sm text-muted-foreground">${token.amount * token.pricePerToken}</p>
+                                                            <p className="font-medium">{Number(token.amount).toFixed(2)}</p>
+                                                            <p className="text-sm text-muted-foreground">{token.pricePerToken ? <>${(token.amount * token.pricePerToken).toFixed(2)}</> : <>-</>}</p>
                                                         </div>
                                                     </div>
                                                 )
                                             })}
-                                            {/* Asset Item */}
-
-                                            {/* Asset Item */}
-                                            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
-                                                        <span className="font-bold text-amber-500">B</span>
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium">Bitcoin</p>
-                                                        <p className="text-sm text-muted-foreground">BTC</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="font-medium">0.0085</p>
-                                                    <p className="text-sm text-muted-foreground">$234.56</p>
-                                                </div>
-                                            </div>
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="activity" className="p-6 space-y-6 m-0">
