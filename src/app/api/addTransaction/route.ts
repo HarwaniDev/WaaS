@@ -4,14 +4,14 @@ import prisma from "@/lib/prisma";
 async function addTransaction(req: NextRequest) {
     const body = await req.json();
     const authHeader = req.headers.get("authorization");
-    
-    if(authHeader !== process.env.WEBHOOK_AUTH_HEADER) {
+
+    if (authHeader !== process.env.WEBHOOK_AUTH_HEADER) {
         return NextResponse.json({
             message: "unauthorized"
-        }, {status: 401})
+        }, { status: 401 })
     }
 
-    const sender: string = body.nativeTransfers.fromUserAccount;
+    const sender = body.nativeTransfers.fromUserAccount;
     const reciever = body.nativeTransfers.toUserAccount;
     const amount = body.nativeTransfers.amount;
     const signature = body.signature;
@@ -28,8 +28,40 @@ async function addTransaction(req: NextRequest) {
             publicKey: reciever
         }
     })
-
-
+    // if both sender and reciever is my user 
+    if (checkSender && checkReciever) {
+        await prisma.transaction.create({
+            data: {
+                sender: sender,
+                reciever: reciever,
+                amount: amount,
+                fees: fees,
+                timestamp: timestamp,
+                signature: signature,
+                solWallet: {
+                    connect: {
+                        publicKey: checkSender.publicKey
+                    }
+                }
+            }
+        })
+        await prisma.transaction.create({
+            data: {
+                sender: sender,
+                reciever: reciever,
+                amount: amount,
+                fees: fees,
+                timestamp: timestamp,
+                signature: signature,
+                solWallet: {
+                    connect: {
+                        publicKey: checkReciever.publicKey
+                    }
+                }
+            }
+        })
+    }
+    // check who is my user. For that user add the transaction to database.
     await prisma.transaction.create({
         data: {
             sender: sender,
@@ -47,10 +79,10 @@ async function addTransaction(req: NextRequest) {
     })
 
     return NextResponse.json({
-        message: "transaction added succcessfully"
+        message: "transaction added successfully"
     }, {
         status: 200
     })
 }
 
-export {addTransaction as POST};
+export { addTransaction as POST };
