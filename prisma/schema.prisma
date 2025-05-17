@@ -33,10 +33,10 @@ model SolWallet {
 model Transaction {
   id          String    @id @default(uuid())
   signature   String    @unique
-  timestamp   DateTime
+  timestamp   BigInt
   sender      String
   reciever    String
-  amount      String
+  amount      BigInt
   fees        BigInt
   solWalletId String
   solWallet   SolWallet @relation(fields: [solWalletId], references: [id])
