@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id             String        @id @default(uuid())
+  id             String     @id @default(uuid())
   email          String
   name           String?
   profilePicture String?
@@ -31,15 +31,26 @@ model SolWallet {
 }
 
 model Transaction {
-  id          String    @id @default(uuid())
-  signature   String    @unique
+  id          String     @id @default(uuid())
+  signature   String     @unique
   timestamp   BigInt
   sender      String
   reciever    String
-  amount      BigInt
+  mint        String?
+  decimals    Int?
+  amount      BigInt? // this field represents sol transferred (sol)
+  tokenAmount BigInt? // this field represents any token transferred (usdc, usdt, trump)
   fees        BigInt
+  type        TransferType 
   solWalletId String
-  solWallet   SolWallet @relation(fields: [solWalletId], references: [id])
-  createdAt   DateTime  @default(now()) 
-  updatedAt   DateTime  @updatedAt
+  solWallet   SolWallet  @relation(fields: [solWalletId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
+
+
+enum TransferType {
+  NATIVE
+  TOKEN
+}
+

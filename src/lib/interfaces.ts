@@ -8,3 +8,19 @@ export interface Token {
     imageLink: string;
 }
 
+export interface Transaction {
+    id: string;
+    signature: string;
+    timestamp: string;
+    sender: string;
+    reciever: string;
+    mint?: string;
+    decimals?: number;
+    amount?: string;
+    tokenAmount?: string;
+    fees: string;
+    type: "NATIVE" | "TOKEN";
+    solWalletId: string;
+    createdAt: Date;
+    updatedAt: Date;
+}

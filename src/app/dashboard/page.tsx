@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowRight, Copy, Download, Plus, Send, Upload, User } from "lucide-react"
 import { useSession } from "next-auth/react"
 import axios from "axios";
-import { Token } from "@/lib/interfaces"
+import { Token, Transaction } from "@/lib/interfaces"
 import { getQuote, getSolanaPrice } from "@/utils/helpers"
 export default function Dashboard() {
     const session = useSession();
@@ -23,14 +23,14 @@ export default function Dashboard() {
     const [tokens, setTokens] = useState<Token[]>();
     const [solBalance, setSolBalance] = useState(0);
     const [solPrice, setSolPrice] = useState(0);
-
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
 
     useEffect(() => {
         if (session.status === "loading") {
             return;
         }
 
-         (async function() {
+        (async function () {
             const price: number = await getSolanaPrice();
             setSolPrice(price);
         })();
@@ -45,20 +45,27 @@ export default function Dashboard() {
             return response.data.publicKey;
         }
 
-        async function getAssets() {
+        async function getAssetsandTransactions() {
             const walletAddress = await getPublicKey();
-            const response = await axios.post("http://localhost:3000/api/getAssets", {
-                publicKey: walletAddress
-            })
-            setSolBalance(response.data.solBalance);
-            setTokens(response.data.result);
+            const [response1, response2] = await Promise.all([
+                axios.post("http://localhost:3000/api/getAssets", {
+                    publicKey: walletAddress
+                }),
+                axios.post("http://localhost:3000/api/getTransactions", {
+                    publicKey: walletAddress
+                })
+            ])
+            setSolBalance(response1.data.solBalance);
+            setTokens(response1.data.result);
+            setTransactions(response2.data.transactions);
             // setBalance(response.data)
+
         };
 
 
 
         const timeout = setTimeout(() => {
-            getAssets();
+            getAssetsandTransactions();
         }, 5000);
 
         return () => {
@@ -158,22 +165,22 @@ export default function Dashboard() {
                                     <TabsContent value="assets" className="p-6 space-y-6 m-0">
                                         <div className="grid gap-4">
                                             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full flex items-center justify-center">
-                                                    <img src="solana.png" alt="" className="rounded-full" />
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-10 w-10 rounded-full flex items-center justify-center">
+                                                        <img src="solana.png" alt="" className="rounded-full" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium">Solana</p>
+                                                        <p className="text-sm text-muted-foreground">Sol</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="font-medium">Solana</p>
-                                                    <p className="text-sm text-muted-foreground">Sol</p>
+                                                <div className="text-right">
+                                                    <p className="font-medium">{Number(solBalance).toFixed(2)}</p>
+                                                    <p className="text-sm text-muted-foreground">${(solBalance * solPrice).toFixed(2)}</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="font-medium">{Number(solBalance).toFixed(2)}</p>
-                                                <p className="text-sm text-muted-foreground">${(solBalance * solPrice).toFixed(2)}</p>
-                                            </div>
-                                        </div>
                                             {tokens?.map((token, key) => {
-                                                if(!token.name) {
+                                                if (!token.name) {
                                                     return;
                                                 }
                                                 return (
@@ -199,10 +206,52 @@ export default function Dashboard() {
                                     <TabsContent value="activity" className="p-6 space-y-6 m-0">
                                         <div className="grid gap-4">
                                             {/* Transaction Item */}
+
+                                            {transactions.map((tx, index) => {
+                                                const isSender = tx.sender === walletAddress;
+                                                const transfer = tx.transfers[0]; // Get the first transfer
+                                                const amount = Number(transfer.amount) / Math.pow(10, transfer.decimals || 9);
+                                                const formattedAmount = amount.toFixed(2);
+                                                const symbol = transfer.type === "TOKEN" ? "USDC" : "SOL";
+                                                const date = new Date(Number(tx.timestamp) * 1000);
+                                                const formattedDate = date.toLocaleDateString('en-US', { 
+                                                    month: 'short', 
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                    minute: 'numeric',
+                                                    hour12: true 
+                                                });
+
+                                                return (
+                                                    <div key={tx.signature} className="flex items-center justify-between p-4 border-b">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                                {isSender ? <Upload className="h-4 w-4 text-green-500" /> : <Download className="h-4 w-4 text-green-500" />}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-medium">
+                                                                    {isSender ? `Sent ${symbol}` : `Received ${symbol}`}
+                                                                </p>
+                                                                <p className="text-sm text-muted-foreground">{formattedDate}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <p className={`font-medium ${isSender ? 'text-red-500' : 'text-green-500'}`}>
+                                                                {isSender ? '-' : '+'}{formattedAmount} {symbol}
+                                                            </p>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                ${(amount * (symbol === 'USDC' ? 1 : 100)).toFixed(2)}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+
+                                            {/* Transaction Item */}
                                             <div className="flex items-center justify-between p-4 border-b">
                                                 <div className="flex items-center gap-3">
                                                     <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                                                        <Download className="h-4 w-4 text-green-500" />
+                                                        <Upload className="h-4 w-4 text-green-500" />
                                                     </div>
                                                     <div>
                                                         <p className="font-medium">Received USDC</p>
@@ -214,41 +263,6 @@ export default function Dashboard() {
                                                     <p className="text-sm text-muted-foreground">$100.00</p>
                                                 </div>
                                             </div>
-
-                                            {/* Transaction Item */}
-                                            <div className="flex items-center justify-between p-4 border-b">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                                                        <Upload className="h-4 w-4 text-red-500" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium">Sent BTC</p>
-                                                        <p className="text-sm text-muted-foreground">Yesterday, 3:45 PM</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="font-medium text-red-500">-0.0015 BTC</p>
-                                                    <p className="text-sm text-muted-foreground">$41.25</p>
-                                                </div>
-                                            </div>
-
-                                            {/* Transaction Item */}
-                                            <div className="flex items-center justify-between p-4 border-b">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                                                        <Download className="h-4 w-4 text-green-500" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium">Received BTC</p>
-                                                        <p className="text-sm text-muted-foreground">Apr 12, 9:20 AM</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="font-medium text-green-500">+0.01 BTC</p>
-                                                    <p className="text-sm text-muted-foreground">$275.80</p>
-                                                </div>
-                                            </div>
-
                                             <Button variant="outline" className="flex items-center gap-2 w-full">
                                                 <ArrowRight className="h-4 w-4" />
                                                 View All Transactions

@@ -3,11 +3,9 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import axios from "axios";
-import bs58 from "bs58";
-import { Token } from "@/lib/interfaces";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getAssetDetails } from "@/utils/helpers";
-import { getAsset } from "node:sea";
+
 async function getAssets(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
