@@ -9,7 +9,7 @@ import { ArrowRight, Copy, Download, Plus, Send, Upload, User } from "lucide-rea
 import { useSession } from "next-auth/react"
 import axios from "axios";
 import { Token, Transaction } from "@/lib/interfaces"
-import { getQuote, getSolanaPrice } from "@/utils/helpers"
+import { getQuote, getSolanaPrice, getAssetDetails } from "@/utils/helpers"
 export default function Dashboard() {
     const session = useSession();
     // implement below if condition so that only logged in user can visit the page.
@@ -24,6 +24,35 @@ export default function Dashboard() {
     const [solBalance, setSolBalance] = useState(0);
     const [solPrice, setSolPrice] = useState(0);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [assetDetails, setAssetDetails] = useState<{ [key: string]: any }>({});
+
+    const getDetails = async (mintAddress: string) => {
+        if (assetDetails[mintAddress]) return assetDetails[mintAddress];
+
+        try {
+            const response = await getAssetDetails(mintAddress);
+            setAssetDetails(prev => ({
+                ...prev,
+                [mintAddress]: response
+            }));
+            return response;
+        } catch (error) {
+            console.error("Error fetching asset details:", error);
+            return null;
+        }
+    };
+
+    // Fetch asset details for all token transactions
+    const fetchAssetDetails = async () => {
+        const tokenTransactions = transactions.filter(tx => tx.type === "TOKEN" && tx.mint);
+        const uniqueMints = [...new Set(tokenTransactions.map(tx => tx.mint))];
+
+        for (const mint of uniqueMints) {
+            if (mint && !assetDetails[mint]) {
+                await getDetails(mint);
+            }
+        }
+    };
 
     useEffect(() => {
         if (session.status === "loading") {
@@ -58,11 +87,11 @@ export default function Dashboard() {
             setSolBalance(response1.data.solBalance);
             setTokens(response1.data.result);
             setTransactions(response2.data.transactions);
+            if (transactions.length > 0) {
+                fetchAssetDetails();
+            }
             // setBalance(response.data)
-
         };
-
-
 
         const timeout = setTimeout(() => {
             getAssetsandTransactions();
@@ -76,7 +105,7 @@ export default function Dashboard() {
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(walletAddress)
-        // You could add a toast notification here
+        // add a toast notification here
     }
 
 
@@ -205,21 +234,30 @@ export default function Dashboard() {
                                     </TabsContent>
                                     <TabsContent value="activity" className="p-6 space-y-6 m-0">
                                         <div className="grid gap-4">
-                                            {/* Transaction Item */}
 
                                             {transactions.map((tx, index) => {
                                                 const isSender = tx.sender === walletAddress;
-                                                const transfer = tx.transfers[0]; // Get the first transfer
-                                                const amount = Number(transfer.amount) / Math.pow(10, transfer.decimals || 9);
-                                                const formattedAmount = amount.toFixed(2);
-                                                const symbol = transfer.type === "TOKEN" ? "USDC" : "SOL";
+                                                const amount = tx.type === "NATIVE"
+                                                    ? Number(tx.amount) / Math.pow(10, 9) // SOL has 9 decimals
+                                                    : Number(tx.tokenAmount);
+                                                const formattedAmount = amount;
+
+                                                // Find token details if it's a token transfer
+                                                const tokenDetails = tx.type === "TOKEN" && tx.mint
+                                                    ? tokens?.find(t => t.mintAddress === tx.mint)
+                                                    : null;
+
+                                                const symbol = tx.type === "TOKEN"
+                                                    ? tokenDetails?.symbol || "Unknown Token"
+                                                    : "SOL";
+
                                                 const date = new Date(Number(tx.timestamp) * 1000);
-                                                const formattedDate = date.toLocaleDateString('en-US', { 
-                                                    month: 'short', 
+                                                const formattedDate = date.toLocaleDateString('en-US', {
+                                                    month: 'short',
                                                     day: 'numeric',
                                                     hour: 'numeric',
                                                     minute: 'numeric',
-                                                    hour12: true 
+                                                    hour12: true
                                                 });
 
                                                 return (
@@ -233,6 +271,22 @@ export default function Dashboard() {
                                                                     {isSender ? `Sent ${symbol}` : `Received ${symbol}`}
                                                                 </p>
                                                                 <p className="text-sm text-muted-foreground">{formattedDate}</p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {isSender ? 'To: ' : 'From: '}
+                                                                    {isSender ? tx.reciever : tx.sender}
+                                                                </p>
+                                                                {tx.type === "TOKEN" && tx.mint && (
+                                                                    <>
+                                                                        <p className="text-xs text-muted-foreground">
+                                                                            Mint: {tx.mint.slice(0, 4)}...{tx.mint.slice(-4)}
+                                                                        </p>
+                                                                        {assetDetails[tx.mint] && (
+                                                                            <p className="text-xs text-muted-foreground">
+                                                                                Name: {assetDetails[tx.mint].name}
+                                                                            </p>
+                                                                        )}
+                                                                    </>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         <div className="text-right">
@@ -240,29 +294,12 @@ export default function Dashboard() {
                                                                 {isSender ? '-' : '+'}{formattedAmount} {symbol}
                                                             </p>
                                                             <p className="text-sm text-muted-foreground">
-                                                                ${(amount * (symbol === 'USDC' ? 1 : 100)).toFixed(2)}
+                                                                ${(amount * (tx.type === "TOKEN" ? (tokenDetails?.pricePerToken || 0) : solPrice)).toFixed(2)}
                                                             </p>
                                                         </div>
                                                     </div>
                                                 )
                                             })}
-
-                                            {/* Transaction Item */}
-                                            <div className="flex items-center justify-between p-4 border-b">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                                                        <Upload className="h-4 w-4 text-green-500" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium">Received USDC</p>
-                                                        <p className="text-sm text-muted-foreground">Today, 10:30 AM</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="font-medium text-green-500">+100.00 USDC</p>
-                                                    <p className="text-sm text-muted-foreground">$100.00</p>
-                                                </div>
-                                            </div>
                                             <Button variant="outline" className="flex items-center gap-2 w-full">
                                                 <ArrowRight className="h-4 w-4" />
                                                 View All Transactions

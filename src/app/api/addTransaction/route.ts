@@ -17,7 +17,7 @@ async function addTransaction(req: NextRequest) {
 
 
     // for transactions involving sol transfers
-    if (body.nativeTransfers) {
+    if (body.nativeTransfers.length !== 0) {
         const nativeTransfers = body.nativeTransfers[0];
         const sender = nativeTransfers.fromUserAccount;
         const reciever = nativeTransfers.toUserAccount;
@@ -55,7 +55,7 @@ async function addTransaction(req: NextRequest) {
     }
     
     // for transactions involving token transfers
-    if (body.tokenTransfers) {
+    if (body.tokenTransfers.length !== 0) {
         const tokenTransfers = body.tokenTransfers[0];
         const sender = tokenTransfers.fromUserAccount;
         const reciever = tokenTransfers.toUserAccount;

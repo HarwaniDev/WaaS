@@ -36,7 +36,7 @@ export async function getQuote(inputMint: string, amount: number): Promise<numbe
     }
 }
 
-export async function getAssetDetails(mintAddress: string, amount: number) {
+export async function getAssetDetails(mintAddress: string, amount?: number) {
     try {
         const response = await rateLimiter.add(() => 
             axios.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
