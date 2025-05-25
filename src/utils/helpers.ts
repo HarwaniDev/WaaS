@@ -38,7 +38,7 @@ export async function getQuote(inputMint: string, amount: number): Promise<numbe
 
 export async function getAssetDetails(mintAddress: string, amount?: number) {
     try {
-        const response = await rateLimiter.add(() => 
+        const response = await rateLimiter.add(() =>
             axios.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
                 "jsonrpc": "2.0",
                 "id": "test",
@@ -48,19 +48,19 @@ export async function getAssetDetails(mintAddress: string, amount?: number) {
                 ]
             })
         );
-
+        console.log(response.data.result.content.metadata.name);
+        const pricePerToken = response.data.result.token_info?.price_info?.price_per_token ?? null;
         return {
             name: response.data.result.content.metadata.name as string,
             symbol: response.data.result.content.metadata.symbol as string,
             mintAddress: mintAddress as string,
             decimals: response.data.result.token_info.decimals as number,
             amount: amount as number,
-            // debug for tokens which dont have price per token property
-            pricePerToken: response.data.result.token_info.price_info.price_per_token ?? null,
+            pricePerToken: pricePerToken,
             imageLink: response.data.result.content.files[0].uri
         }
     } catch (error: any) {
-        console.log("error getting asset details",error);
+        console.log("error getting asset details", error);
         return 0;
     }
 }

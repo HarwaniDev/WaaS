@@ -12,6 +12,7 @@ import { Token, Transaction } from "@/lib/interfaces"
 import { getQuote, getSolanaPrice, getAssetDetails } from "@/utils/helpers"
 export default function Dashboard() {
     const session = useSession();
+
     // implement below if condition so that only logged in user can visit the page.
 
     // if(session.data?.user) {
@@ -26,32 +27,18 @@ export default function Dashboard() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [assetDetails, setAssetDetails] = useState<{ [key: string]: any }>({});
 
-    const getDetails = async (mintAddress: string) => {
-        if (assetDetails[mintAddress]) return assetDetails[mintAddress];
-
-        try {
-            const response = await getAssetDetails(mintAddress);
-            setAssetDetails(prev => ({
-                ...prev,
-                [mintAddress]: response
-            }));
-            return response;
-        } catch (error) {
-            console.error("Error fetching asset details:", error);
-            return null;
-        }
-    };
-
     // Fetch asset details for all token transactions
     const fetchAssetDetails = async () => {
         const tokenTransactions = transactions.filter(tx => tx.type === "TOKEN" && tx.mint);
         const uniqueMints = [...new Set(tokenTransactions.map(tx => tx.mint))];
 
-        for (const mint of uniqueMints) {
-            if (mint && !assetDetails[mint]) {
-                await getDetails(mint);
-            }
-        }
+        const response = await axios.post("http://localhost:3000/api/getAssetDetails", {
+            publicKey: walletAddress,
+            uniqueMints: uniqueMints
+        })
+        console.log(response.data);
+        
+        setAssetDetails(response.data);
     };
 
     useEffect(() => {
