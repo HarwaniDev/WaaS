@@ -39,9 +39,9 @@ const USDCSVG = () => (
 
 );
 
-const TrumpCoinSVG = () => (
+const JupiterSVG = () => (
     <svg width="80" height="80" version="1.1" id="katman_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-        viewBox="0 0 800 800" style={{ enableBackground: 'new 0 0 800 800' }} xmlSpace="preserve">
+        viewBox="0 0 800 800" xmlSpace="preserve">
         <defs>
             <style type="text/css">
                 {`
@@ -96,6 +96,38 @@ const TrumpCoinSVG = () => (
     </svg>
 );
 
+const RaydiumSVG = () => (
+    <svg width="80" height="80" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+        viewBox="0 0 32 36.9" xmlSpace="preserve">
+        <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="32.95" y1="26.3048" x2="-0.9788" y2="12.7367" gradientTransform="matrix(1 0 0 -1 0 38)">
+            <stop offset="0" style={{ stopColor: '#C200FB' }} />
+            <stop offset="0.4897" style={{ stopColor: '#3772FF' }} />
+            <stop offset="1" style={{ stopColor: '#5AC4BE' }} />
+        </linearGradient>
+        <path className="st0" d="M30.3,13.9v12.9L16,35L1.7,26.7V10.2L16,1.9l11,6.4l1.7-1L16,0L0,9.2v18.5l16,9.2l16-9.2V12.9L30.3,13.9z" />
+        <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="32.2949" y1="27.9428" x2="-1.6339" y2="14.3747" gradientTransform="matrix(1 0 0 -1 0 38)">
+            <stop offset="0" style={{ stopColor: '#C200FB' }} />
+            <stop offset="0.4897" style={{ stopColor: '#3772FF' }} />
+            <stop offset="1" style={{ stopColor: '#5AC4BE' }} />
+        </linearGradient>
+        <path className="st1" d="M12,26.8H9.6v-8h8c0.8,0,1.5-0.3,2-0.9c0.5-0.5,0.8-1.3,0.8-2c0-0.4-0.1-0.7-0.2-1.1c-0.1-0.3-0.4-0.7-0.6-0.9
+    c-0.3-0.3-0.6-0.5-0.9-0.6S18,13,17.6,13h-8v-2.4h8c1.4,0,2.7,0.6,3.7,1.6c1,1,1.6,2.3,1.6,3.7c0,1.1-0.3,2.1-0.9,3
+    c-0.6,0.8-1.4,1.5-2.3,1.9c-0.9,0.3-1.9,0.4-2.9,0.4H12V26.8z"/>
+        <linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="35.6876" y1="19.4591" x2="1.7588" y2="5.891" gradientTransform="matrix(1 0 0 -1 0 38)">
+            <stop offset="0" style={{ stopColor: '#C200FB' }} />
+            <stop offset="0.4897" style={{ stopColor: '#3772FF' }} />
+            <stop offset="1" style={{ stopColor: '#5AC4BE' }} />
+        </linearGradient>
+        <path className="st2" d="M22.8,26.6H20l-2.2-3.8c0.9-0.1,1.7-0.2,2.5-0.5L22.8,26.6z" />
+        <linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="32.0678" y1="28.5037" x2="-1.861" y2="14.9356" gradientTransform="matrix(1 0 0 -1 0 38)">
+            <stop offset="0" style={{ stopColor: '#C200FB' }} />
+            <stop offset="0.4897" style={{ stopColor: '#3772FF' }} />
+            <stop offset="1" style={{ stopColor: '#5AC4BE' }} />
+        </linearGradient>
+        <path className="st3" d="M28.7,11.2l1.7,0.9l1.7-0.9V9.2l-1.7-1l-1.7,1V11.2z" />
+    </svg>
+)
+
 const BackgroundDecorations = () => {
     return (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -107,7 +139,7 @@ const BackgroundDecorations = () => {
                 <USDTSVG />
             </div>
             <div className="absolute bottom-24 left-0 opacity-30 animate-float -translate-x-1/12" style={{ animationDelay: '2s' }}>
-                <TrumpCoinSVG />
+                <JupiterSVG />
             </div>
 
             {/* Right Side Stickers */}
@@ -115,7 +147,7 @@ const BackgroundDecorations = () => {
                 <USDCSVG />
             </div>
             <div className="absolute bottom-1/3 right-0 opacity-30 animate-float translate-x-1/8" style={{ animationDelay: '2s' }}>
-                <TrumpCoinSVG />
+                <RaydiumSVG />
             </div>
             <div className="absolute bottom-10 right-0 opacity-30 animate-float translate-x-1/12" style={{ animationDelay: '1s' }}>
                 <SolanaSVG />
