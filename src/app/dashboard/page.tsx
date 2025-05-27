@@ -14,6 +14,7 @@ import DashboardTab from "./DashboardTab";
 import SendTab from "./SendTab";
 import ReceiveTab from "./ReceiveTab";
 import SwapTab from "./SwapTab";
+import BackgroundDecorations from "@/components/ui/BackgroundDecorations";
 
 export default function Dashboard() {
     const session = useSession();
@@ -128,6 +129,7 @@ export default function Dashboard() {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-slate-50">
+            <BackgroundDecorations />
             <div className="flex-1 overflow-auto max-w-3/4 w-full px-4">
                 
                 <main className="container py-8">
