@@ -48,7 +48,6 @@ export async function getAssetDetails(mintAddress: string, amount?: number) {
                 ]
             })
         );
-        console.log(response.data.result.content.metadata.name);
         const pricePerToken = response.data.result.token_info?.price_info?.price_per_token ?? null;
         return {
             name: response.data.result.content.metadata.name as string,

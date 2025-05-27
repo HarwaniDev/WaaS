@@ -1,20 +1,16 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowRight, Copy, Download, Plus, Send, Upload, User } from "lucide-react"
 import { useSession } from "next-auth/react"
 import axios from "axios";
 import { Token, Transaction } from "@/lib/interfaces"
-import { getQuote, getSolanaPrice, getAssetDetails } from "@/utils/helpers"
+import { getSolanaPrice } from "@/utils/helpers"
 import DashboardTab from "./DashboardTab";
 import SendTab from "./SendTab";
 import ReceiveTab from "./ReceiveTab";
 import SwapTab from "./SwapTab";
 import BackgroundDecorations from "@/components/ui/BackgroundDecorations";
+import toast from 'react-hot-toast';
 
 export default function Dashboard() {
     const session = useSession();
@@ -96,7 +92,10 @@ export default function Dashboard() {
                 const tokenValues = response1.data.result
                     .filter((token: Token) => token.pricePerToken)
                     .reduce((sum: number, token: Token) => sum + (token.amount * token.pricePerToken), 0);
-                const totalBalance = (solValue + tokenValues).toFixed(2);
+                const totalBalance = (solValue + tokenValues).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
                 setBalance(totalBalance);
 
                 if (transactions.length > 0) {
@@ -122,8 +121,19 @@ export default function Dashboard() {
     }
 
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(walletAddress)
-        // add a toast notification here
+        navigator.clipboard.writeText(walletAddress);
+        toast.success('Address copied to clipboard!', {
+            style: {
+                background: '#0EA5E9',
+                color: '#fff',
+                borderRadius: '8px',
+                padding: '12px 16px',
+            },
+            iconTheme: {
+                primary: '#fff',
+                secondary: '#0EA5E9',
+            },
+        });
     }
 
 
