@@ -9,7 +9,6 @@ import { signIn, signOut, useSession } from "next-auth/react"
 export default function Home() {
 
   const session = useSession();
-
   return (
 
     <div className="flex flex-col min-h-screen">

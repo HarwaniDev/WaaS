@@ -11,10 +11,12 @@ import ReceiveTab from "./ReceiveTab";
 import SwapTab from "./SwapTab";
 import BackgroundDecorations from "@/components/ui/BackgroundDecorations";
 import toast from 'react-hot-toast';
+import { Connection } from "@solana/web3.js";
 
 export default function Dashboard() {
-    const session = useSession();
 
+    const session = useSession();
+    const connection = new Connection("https://api.devnet.solana.com");
     // implement below if condition so that only logged in user can visit the page.
 
     // if(session.data?.user) {
@@ -157,7 +159,7 @@ export default function Dashboard() {
                             </button>
                         </div>
                     )}
-                    {activeTab === 'send' && <SendTab />}
+                    {activeTab === 'send' && <SendTab tokens={tokens || []} walletAddress={walletAddress} />}
                     {activeTab === 'receive' && <ReceiveTab walletAddress={walletAddress} copyToClipboard={copyToClipboard} />}
                     {activeTab === 'swap' && <SwapTab />}
                     
