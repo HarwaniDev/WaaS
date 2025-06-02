@@ -31,7 +31,7 @@ export const authOptions: AuthOptions = {
           // create a new address for the newly registered user
           const keypair = Keypair.generate();
           const publicKey = keypair.publicKey.toBase58();
-          const privateKey = keypair.secretKey.toString();
+          const privateKey = Buffer.from(keypair.secretKey).toString('base64');
           await prisma?.user.create({
             data: {
               email: user.email,

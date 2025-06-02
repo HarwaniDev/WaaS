@@ -5,11 +5,11 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 async function getDetails(req: NextRequest) {
-    // const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions);
 
-    // if (!session?.user?.email) {
-    //     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-    // };
+    if (!session?.user?.email) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    };
 
     try {
         const { publicKey, uniqueMints } = await req.json();
@@ -21,45 +21,43 @@ async function getDetails(req: NextRequest) {
             }, { status: 400 });
         };
 
-        // const requestingUser = await prisma.user.findFirst({
-        //     where: {
-        //         email: session.user.email
-        //     }
-        // });
+        const requestingUser = await prisma.user.findFirst({
+            where: {
+                email: session.user.email
+            }
+        });
 
-        // if (!requestingUser) {
-        //     return NextResponse.json({
-        //         error: "User not found"
-        //     }, { status: 404 });
-        // };
+        if (!requestingUser) {
+            return NextResponse.json({
+                error: "User not found"
+            }, { status: 404 });
+        };
 
-        // const targetUser = await prisma.user.findFirst({
-        //     where: {
-        //         solWallet: {
-        //             publicKey: publicKey
-        //         }
-        //     }
-        // });
-
-
-        // if (!targetUser) {
-        //     return NextResponse.json({
-        //         error: "Wallet not found"
-        //     }, { status: 404 });
-        // }
+        const targetUser = await prisma.user.findFirst({
+            where: {
+                solWallet: {
+                    publicKey: publicKey
+                }
+            }
+        });
 
 
-        // if (requestingUser.id !== targetUser.id) {
-        //     return NextResponse.json({
-        //         error: "You dont have the authority to get another person's key details"
-        //     }, { status: 301 })
-        // };
+        if (!targetUser) {
+            return NextResponse.json({
+                error: "Wallet not found"
+            }, { status: 404 });
+        }
+
+
+        if (requestingUser.id !== targetUser.id) {
+            return NextResponse.json({
+                error: "You dont have the authority to get another person's key details"
+            }, { status: 301 })
+        };
 
         const response: { [key: string]: any } = {};
         for (const mint of uniqueMints) {
             const details = await getAssetDetails(mint, 0);
-            console.log(mint);
-            console.log(details);
             response[mint] = details;
         }
 

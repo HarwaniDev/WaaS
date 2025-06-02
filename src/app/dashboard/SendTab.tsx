@@ -52,11 +52,20 @@ export default function SendTab({ tokens = [], walletAddress = "", solBalance = 
         
         setIsLoading(true);
         try {
-            const response = await axios.post("/api/getFees", {
-                publicKey: walletAddress,
-                sol: selectedToken.symbol === "SOL" ? parseFloat(amount) : 0,
-                recipient: recipient
-            });
+            const requestData = selectedToken.symbol === "SOL" 
+                ? {
+                    publicKey: walletAddress,
+                    sol: parseFloat(amount),
+                    recipient: recipient
+                }
+                : {
+                    publicKey: walletAddress,
+                    mint: selectedToken.mintAddress,
+                    amount: parseFloat(amount),
+                    recipient: recipient
+                };
+
+            const response = await axios.post("/api/getFees", requestData);
             setTransactionFee(response.data.fee);
             setIsReviewing(true);
         } catch (error) {

@@ -1,60 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { clusterApiUrl, Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, TransactionMessage } from "@solana/web3.js";
+import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, TransactionMessage } from "@solana/web3.js";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 async function getFees(req: NextRequest) {
-    // const session = await getServerSession(authOptions);
+    
+    const session = await getServerSession(authOptions);
 
-    // if (!session?.user?.email) {
-    //     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-    // };
+    if (!session?.user?.email) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    };
 
     try {
         const { publicKey, sol, recipient, mint, amount } = await req.json();
         const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
 
         // // Input validation
-        // if (!publicKey || typeof publicKey !== 'string' || publicKey.length > 44) {
-        //     return NextResponse.json({
-        //         error: "Invalid input"
-        //     }, { status: 400 });
-        // };
+        if (!publicKey || typeof publicKey !== 'string' || publicKey.length > 44) {
+            return NextResponse.json({
+                error: "Invalid input"
+            }, { status: 400 });
+        };
 
-        // const requestingUser = await prisma.user.findFirst({
-        //     where: {
-        //         email: session.user.email
-        //     }
-        // });
+        const requestingUser = await prisma.user.findFirst({
+            where: {
+                email: session.user.email
+            }
+        });
 
-        // if (!requestingUser) {
-        //     return NextResponse.json({
-        //         error: "User not found"
-        //     }, { status: 404 });
-        // };
+        if (!requestingUser) {
+            return NextResponse.json({
+                error: "User not found"
+            }, { status: 404 });
+        };
 
-        // const targetUser = await prisma.user.findFirst({
-        //     where: {
-        //         solWallet: {
-        //             publicKey: publicKey
-        //         }
-        //     }
-        // });
-
-
-        // if (!targetUser) {
-        //     return NextResponse.json({
-        //         error: "Wallet not found"
-        //     }, { status: 404 });
-        // }
+        const targetUser = await prisma.user.findFirst({
+            where: {
+                solWallet: {
+                    publicKey: publicKey
+                }
+            }
+        });
 
 
-        // if (requestingUser.id !== targetUser.id) {
-        //     return NextResponse.json({
-        //         error: "You dont have the authority to request transaction on behalf of another person"
-        //     }, { status: 301 })
-        // };
+        if (!targetUser) {
+            return NextResponse.json({
+                error: "Wallet not found"
+            }, { status: 404 });
+        }
+
+
+        if (requestingUser.id !== targetUser.id) {
+            return NextResponse.json({
+                error: "You dont have the authority to request transaction on behalf of another person"
+            }, { status: 301 })
+        };
 
         const sender = new PublicKey(publicKey);
         const reciever = new PublicKey(recipient);
