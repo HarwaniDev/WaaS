@@ -159,7 +159,7 @@ export default function Dashboard() {
                             </button>
                         </div>
                     )}
-                    {activeTab === 'send' && <SendTab tokens={tokens || []} walletAddress={walletAddress} />}
+                    {activeTab === 'send' && <SendTab tokens={tokens || []} walletAddress={walletAddress} solBalance={solBalance} solPrice={solPrice} />}
                     {activeTab === 'receive' && <ReceiveTab walletAddress={walletAddress} copyToClipboard={copyToClipboard} />}
                     {activeTab === 'swap' && <SwapTab />}
                     
