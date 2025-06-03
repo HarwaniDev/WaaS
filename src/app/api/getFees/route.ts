@@ -3,9 +3,9 @@ import prisma from "@/lib/prisma";
 import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, TransactionMessage } from "@solana/web3.js";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 async function getFees(req: NextRequest) {
-    
+
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
@@ -91,11 +91,10 @@ async function getFees(req: NextRequest) {
 
             const instructions = [];
 
-            try {
-                // if reciever ata exists dont do anything
-                await getAccount(connection, recieverATA);
-            } catch (error) {
-                // if doesn't exist then add the instruction
+            const recieverInfo = await connection.getAccountInfo(recieverATA);
+
+            // if doesn't exist then add the instruction
+            if (!recieverInfo) {
                 instructions.push(
                     createAssociatedTokenAccountInstruction(
                         sender, recieverATA, reciever, mintAddress, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID

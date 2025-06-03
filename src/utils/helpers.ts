@@ -26,8 +26,6 @@ export async function getQuote(inputMint: string, amount: number): Promise<numbe
             }),
             axios.get(`https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=So11111111111111111111111111111111111111112&amount=${amount}`)
         ]);
-        // console.log(heliusResponse.data.calue.decimals);
-        // console.log(jupResponse.data.outAmount);
         return jupResponse.data.outAmount / heliusResponse.data.calue.decimals;
 
     } catch (error) {
