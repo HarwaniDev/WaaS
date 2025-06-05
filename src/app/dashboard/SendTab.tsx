@@ -232,8 +232,8 @@ export default function SendTab({ tokens = [], walletAddress = "", solBalance = 
                                             <span>Solana (SOL)</span>
                                         </div>
                                     </SelectItem>
-                                    {tokens.map((token) => (
-                                        <SelectItem key={token.mintAddress} value={token.mintAddress}>
+                                    {tokens.map((token, index) => (
+                                        <SelectItem key={index} value={token.mintAddress}>
                                             <div className="flex items-center gap-2">
                                                 <img src={token.imageLink} alt={token.name} className="w-6 h-6 rounded-full" />
                                                 <span>{token.name} ({token.symbol})</span>
@@ -278,9 +278,10 @@ export default function SendTab({ tokens = [], walletAddress = "", solBalance = 
                         <Button
                             className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-medium"
                             onClick={handleReview}
-                            disabled={!selectedToken || !recipient || !amount || isLoading}
+                            disabled={!selectedToken || !recipient || !amount || isLoading || (Number(amount) > selectedToken.amount)}
                         >
-                            {isLoading ? "Loading..." : "Review Transaction"}
+                            {/* {(Number(amount) < selectedToken!.amount) ? "Insufficient Balance" : isLoading ? "Loading" : "Review"} */}
+                            {isLoading ? "Loading..." : selectedToken && (Number(amount) > selectedToken.amount) ? "Insufficient Balance" : "Review Transaction"}
                         </Button>
                     </>
                 ) : (

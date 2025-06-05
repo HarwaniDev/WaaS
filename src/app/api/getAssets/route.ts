@@ -7,55 +7,55 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getAssetDetails } from "@/utils/helpers";
 
 async function getAssets(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  // const session = await getServerSession(authOptions);
 
-  if (!session?.user?.email) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-  };
+  // if (!session?.user?.email) {
+  //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+  // };
 
   try {
     const { publicKey } = await req.json();
 
     // Input validation
-    if (!publicKey || typeof publicKey !== 'string' || publicKey.length > 44) {
-      return NextResponse.json({
-        error: "Invalid input"
-      }, { status: 400 });
-    };
+    // if (!publicKey || typeof publicKey !== 'string' || publicKey.length > 44) {
+    //   return NextResponse.json({
+    //     error: "Invalid input"
+    //   }, { status: 400 });
+    // };
 
-    const requestingUser = await prisma.user.findFirst({
-      where: {
-        email: session.user.email
-      }
-    });
+    // const requestingUser = await prisma.user.findFirst({
+    //   where: {
+    //     email: session.user.email
+    //   }
+    // });
 
-    if (!requestingUser) {
-      return NextResponse.json({
-        error: "User not found"
-      }, { status: 404 });
-    };
+    // if (!requestingUser) {
+    //   return NextResponse.json({
+    //     error: "User not found"
+    //   }, { status: 404 });
+    // };
 
-    const targetUser = await prisma.user.findFirst({
-      where: {
-        solWallet: {
-          publicKey: publicKey
-        }
-      }
-    });
-
-
-    if (!targetUser) {
-      return NextResponse.json({
-        error: "Wallet not found"
-      }, { status: 404 });
-    }
+    // const targetUser = await prisma.user.findFirst({
+    //   where: {
+    //     solWallet: {
+    //       publicKey: publicKey
+    //     }
+    //   }
+    // });
 
 
-    if (requestingUser.id !== targetUser.id) {
-      return NextResponse.json({
-        error: "You dont have the authority to get another person's key details"
-      }, { status: 301 })
-    };
+    // if (!targetUser) {
+    //   return NextResponse.json({
+    //     error: "Wallet not found"
+    //   }, { status: 404 });
+    // }
+
+
+    // if (requestingUser.id !== targetUser.id) {
+    //   return NextResponse.json({
+    //     error: "You dont have the authority to get another person's key details"
+    //   }, { status: 301 })
+    // };
 
     const [balanceResponse, tokenAccountResponse] = await Promise.all([
       axios.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
@@ -64,7 +64,7 @@ async function getAssets(req: NextRequest) {
         "method": "getBalance",
         "params": [
           // add public key parameter here
-          "GFnj2iGG9F1bMXzxUxV79yW79mmYQN2XYv3wLftpfK9U"
+          "4LcZnGHaEaDWPX6V12DXcoLKt9mD6xAzYtQcgeE3aHuo"
         ]
       }),
       axios.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
@@ -72,7 +72,7 @@ async function getAssets(req: NextRequest) {
         "id": 1,
         "method": "getTokenAccountsByOwner",
         "params": [
-          "GFnj2iGG9F1bMXzxUxV79yW79mmYQN2XYv3wLftpfK9U",
+          "4LcZnGHaEaDWPX6V12DXcoLKt9mD6xAzYtQcgeE3aHuo",
           {
             "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           },

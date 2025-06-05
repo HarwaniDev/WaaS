@@ -10,8 +10,10 @@ import SendTab from "./SendTab";
 import ReceiveTab from "./ReceiveTab";
 import SwapTab from "./SwapTab";
 import BackgroundDecorations from "@/components/ui/BackgroundDecorations";
+import Navigation from "@/components/ui/Navigation";
 import toast from 'react-hot-toast';
 import { Connection } from "@solana/web3.js";
+import { ArrowLeft } from "lucide-react";
 
 export default function Dashboard() {
 
@@ -140,29 +142,61 @@ export default function Dashboard() {
 
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-slate-50">
+        <div className="flex justify-center items-center min-h-screen bg-gradient-mesh">
             <BackgroundDecorations />
-            <div className="flex-1 overflow-auto max-w-3/4 w-full px-4">
-                
-                <main className="container py-8">
-                    {activeTab === 'dashboard' && <DashboardTab walletAddress={walletAddress} balance={balance} tokens={tokens || []} solBalance={solBalance} solPrice={solPrice} transactions={transactions} assetDetails={assetDetails} copyToClipboard={copyToClipboard} user={session.data?.user ? { image: session.data.user.image ?? undefined } : undefined} activeTab={activeTab} setActiveTab={setActiveTab} firstName={firstName} />}
+            <div className="flex-1 overflow-auto max-w-4xl w-full px-4">
+                <main className="container py-8 space-y-6">
+                    {/* Back Button - Only visible on small devices and when not on dashboard */}
                     {activeTab !== 'dashboard' && (
-                        <div className="mb-6 flex items-center">
+                        <div className="md:hidden mb-4">
                             <button
-                                className="flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500 text-white font-medium shadow hover:bg-cyan-600 transition-colors"
                                 onClick={() => setActiveTab('dashboard')}
+                                className="flex items-center gap-2 bg-cyan-100 text-cyan-600 hover:bg-cyan-200 hover:text-cyan-700 transition-colors px-4 py-2 rounded-lg"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                                </svg>
-                                Back to Dashboard
+                                <ArrowLeft className="w-5 h-5" />
+                                <span>Back to Dashboard</span>
                             </button>
                         </div>
                     )}
-                    {activeTab === 'send' && <SendTab tokens={tokens || []} walletAddress={walletAddress} solBalance={solBalance} solPrice={solPrice} />}
-                    {activeTab === 'receive' && <ReceiveTab walletAddress={walletAddress} copyToClipboard={copyToClipboard} />}
-                    {activeTab === 'swap' && <SwapTab walletAddress={walletAddress} />}
                     
+                    {/* Navigation - Hidden on small devices */}
+                    <div className="hidden md:flex justify-center mb-8">
+                        <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+                    </div>
+                    
+                    {activeTab === 'dashboard' && (
+                        <div className="glass-effect rounded-2xl p-6 card-hover">
+                            <DashboardTab 
+                                walletAddress={walletAddress} 
+                                balance={balance} 
+                                tokens={tokens || []} 
+                                solBalance={solBalance} 
+                                solPrice={solPrice} 
+                                transactions={transactions} 
+                                assetDetails={assetDetails} 
+                                copyToClipboard={copyToClipboard} 
+                                user={session.data?.user ? { image: session.data.user.image ?? undefined } : undefined} 
+                                activeTab={activeTab} 
+                                setActiveTab={setActiveTab} 
+                                firstName={firstName} 
+                            />
+                        </div>
+                    )}
+                    {activeTab === 'send' && (
+                        <div className="glass-effect rounded-2xl p-6 card-hover">
+                            <SendTab tokens={tokens || []} walletAddress={walletAddress} solBalance={solBalance} solPrice={solPrice} />
+                        </div>
+                    )}
+                    {activeTab === 'receive' && (
+                        <div className="glass-effect rounded-2xl p-6 card-hover">
+                            <ReceiveTab walletAddress={walletAddress} copyToClipboard={copyToClipboard} />
+                        </div>
+                    )}
+                    {activeTab === 'swap' && (
+                        <div className="glass-effect rounded-2xl p-6 card-hover">
+                            <SwapTab walletAddress={walletAddress} />
+                        </div>
+                    )}
                 </main>
             </div>
         </div>

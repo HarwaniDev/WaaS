@@ -1,19 +1,19 @@
 import { authOptions } from "@/lib/authOptions";
-import { clusterApiUrl, Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, TransactionMessage, VersionedMessage, VersionedTransaction } from "@solana/web3.js";
+import { clusterApiUrl, Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import prisma from "@/lib/prisma";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createTransferCheckedWithFeeInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 async function sendTransaction(req: NextRequest) {
 
-    // const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions);
     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
     const latestBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
-    // if (!session?.user?.email) {    
-    //     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-    // };
+    if (!session?.user?.email) {    
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    };
 
     try {
 

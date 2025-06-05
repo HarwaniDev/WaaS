@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ChevronDown } from "lucide-react";
 import { tokens } from "../../../public/assets";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
 
 interface QuoteResponse {
     inputMint: string;
@@ -46,6 +46,58 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
     const [modalLoading, setModalLoading] = useState(false);
     const [selectedInputTokenDetails, setSelectedInputTokenDetails] = useState<any>(null);
     const [selectedOutputTokenDetails, setSelectedOutputTokenDetails] = useState<any>(null);
+    const [isSwapping, setIsSwapping] = useState(false);
+    const [transactionSignature, setTransactionSignature] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [userTokens, setUserTokens] = useState<any[]>([]);
+
+    // Fetch user's tokens on component mount
+    useEffect(() => {
+        const fetchUserTokens = async () => {
+            try {
+                const response = await axios.post('/api/getAssets', {
+                    publicKey: walletAddress
+                });
+                setUserTokens(response.data.result || []);
+            } catch (error) {
+                console.error('Error fetching user tokens:', error);
+            }
+        };
+        fetchUserTokens();
+    }, [walletAddress]);
+
+    // Check if user has sufficient balance
+    const hasSufficientBalance = () => {
+        if (!amount || !inputToken) return false;
+        
+        const inputTokenInfo = isCustomInputMint ? selectedInputTokenDetails : getTokenInfo(inputToken);
+        const userToken = userTokens.find(t => t.mint === inputTokenInfo.mint);
+        
+        if (!userToken) return false;
+        
+        const amountWithDecimals = Number(amount) * Math.pow(10, inputTokenInfo.decimals);
+        return userToken.amount >= amountWithDecimals;
+    };
+
+    const handleSwap = async () => {
+        if (!quote || !amount) return;
+        
+        setIsSwapping(true);
+        setError(null);
+        
+        try {
+            const response = await axios.post('/api/sendSwapTransaction', {
+                publicKey: walletAddress,
+                quote: quote
+            });
+            
+            setTransactionSignature(response.data.txid);
+        } catch (error: any) {
+            setError(error.response?.data?.error || 'Failed to execute swap');
+        } finally {
+            setIsSwapping(false);
+        }
+    };
 
     const checkCustomMint = async (mintAddress: string, type: 'input' | 'output') => {
         // First check if it's in our tokens array
@@ -98,6 +150,7 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
             const amountWithDecimals = Math.floor(Number(amount) * Math.pow(10, inputTokenInfo.decimals));
 
             const response = await axios.post('/api/getQuote', {
+                publicKey: walletAddress,
                 inputMint: isCustomInputMint ? customInputMint : inputToken,
                 outputMint: isCustomOutputMint ? customOutputMint : outputToken,
                 amount: amountWithDecimals.toString()
@@ -184,7 +237,7 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                     <div className="flex justify-between items-center mb-2">
                         <Label className="text-cyan-700">Selling</Label>
                     </div>
-                    <div className="flex items-center space-x-3 mb-3">
+                    <div className="flex justify-end items-center space-x-3 mb-3">
                         <div 
                             className="flex items-center space-x-2 bg-cyan-100 rounded-lg px-3 py-1 cursor-pointer hover:bg-cyan-200 transition-colors"
                             onClick={() => openTokenModal('input')}
@@ -213,8 +266,8 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                                 placeholder="Enter amount"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
-                                className="border-cyan-200 focus:ring-cyan-500 text-right text-2xl font-bold bg-transparent text-cyan-700"
-                                style={{ boxShadow: 'none', border: 'none', background: 'none' }}
+                                className="border-cyan-400 focus:ring-cyan-500 text-right text-2xl font-bold bg-transparent text-cyan-700"
+                                style={{ boxShadow: 'none', background: 'none' }}
                             />
                         </div>
                     </div>
@@ -259,8 +312,8 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                                             : ""
                                 }
                                 readOnly
-                                className="border-cyan-200 focus:ring-cyan-500 text-right text-2xl font-bold bg-transparent text-cyan-700 cursor-not-allowed"
-                                style={{ boxShadow: 'none', border: 'none', background: 'none' }}
+                                className="border-cyan-400 focus:ring-cyan-500 text-right text-2xl font-bold bg-transparent text-cyan-700 cursor-not-allowed"
+                                style={{ boxShadow: 'none', background: 'none' }}
                             />
                         </div>
                     </div>
@@ -323,6 +376,100 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                             <div>Slippage: <span className="text-cyan-900 font-bold">{quote.slippageBps / 100}%</span></div>
                             <div>Swap Mode: <span className="text-cyan-900 font-bold">{quote.swapMode}</span></div>
                         </div>
+                    </div>
+                )}
+
+                {/* Swap Button */}
+                {!transactionSignature && (
+                    <Button
+                        className={`w-full mt-4 text-white font-medium ${
+                            (!quote || !amount || isSwapping || !hasSufficientBalance()) 
+                            ? 'bg-gray-400 cursor-not-allowed hover:bg-gray-400' 
+                            : 'bg-cyan-500 hover:bg-cyan-600'
+                        }`}
+                        onClick={handleSwap}
+                        disabled={!quote || !amount || isSwapping || !hasSufficientBalance()}
+                    >
+                        {isSwapping ? "Swapping..." : 
+                         !amount ? "Enter an amount" :
+                         !inputToken && !customInputMint ? "Select input token" :
+                         !outputToken && !customOutputMint ? "Select output token" :
+                         !hasSufficientBalance() ? "Insufficient Balance" : 
+                         "Confirm and Swap"}
+                    </Button>
+                )}
+
+                {/* Transaction Result */}
+                {transactionSignature && (
+                    <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-100">
+                        <div className="flex justify-center mb-4">
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                                <svg
+                                    className="w-10 h-10 text-green-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M5 13l4 4L19 7"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 className="font-semibold text-green-700 mb-2 text-center">Swap Successful!</h3>
+                        <p className="text-sm text-green-600 mb-2 text-center">Transaction Signature:</p>
+                        <div className="flex items-center justify-center space-x-2">
+                            <p className="text-xs font-mono bg-green-50 p-2 rounded break-all flex-1">
+                                {transactionSignature}
+                            </p>
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(transactionSignature);
+                                }}
+                                className="p-2 text-green-600 hover:text-green-700 transition-colors"
+                                title="Copy to clipboard"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                </svg>
+                            </button>
+                        </div>
+                        <a
+                            href={`https://solscan.io/tx/${transactionSignature}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-block text-cyan-600 hover:text-cyan-700 underline text-center w-full"
+                        >
+                            View on Solscan
+                        </a>
+                    </div>
+                )}
+
+                {/* Error Message */}
+                {error && (
+                    <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-100">
+                        <div className="flex justify-center mb-4">
+                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                                <svg
+                                    className="w-10 h-10 text-red-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 className="font-semibold text-red-700 mb-2 text-center">Swap Failed</h3>
+                        <p className="text-sm text-red-600 text-center">{error}</p>
                     </div>
                 )}
             </div>

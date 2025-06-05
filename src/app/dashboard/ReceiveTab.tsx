@@ -20,7 +20,12 @@ export default function ReceiveTab({ walletAddress, copyToClipboard }: ReceiveTa
 
             <div className="flex items-center gap-2 text-sm mb-2">
                 <span className="text-muted-foreground truncate max-w-[150px]">{walletAddress}</span>
-                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full" onClick={copyToClipboard}>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded-full bg-white/20 hover:bg-white/30 cursor-pointer"
+                    onClick={copyToClipboard}
+                >
                     <Copy className="h-3 w-3" />
                 </Button>
             </div>

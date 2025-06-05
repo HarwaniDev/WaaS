@@ -136,3 +136,47 @@
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+/* New background styles */
+.bg-gradient-mesh {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 40% 20%, hsla(189, 100%, 90%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(189, 100%, 90%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(189, 100%, 90%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, hsla(189, 100%, 90%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(189, 100%, 90%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, hsla(189, 100%, 90%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 0% 0%, hsla(189, 100%, 90%, 0.5) 0px, transparent 50%);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Glass effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Dark mode glass effect */
+.dark .glass-effect {
+  background: rgba(17, 17, 17, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

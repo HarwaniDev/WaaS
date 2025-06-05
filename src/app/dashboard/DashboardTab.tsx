@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Copy, Download, Key, LogOut, Send, Upload, Wallet } from "lucide-react";
+import { ArrowRight, Copy, Download, Key, LogOut, Send, Upload } from "lucide-react";
 import React, { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -31,15 +31,10 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
     return (
         <div className="grid gap-8">
             <Card className="overflow-hidden bg-white border-0 shadow-lg">
-                {/* Top bar: WaaS + Wallet logo left, user image and name right */}
                 <div className="flex justify-between items-center px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
-                    <div className="flex items-center gap-2">
-                        <Wallet className="h-6 w-6 sm:h-7 sm:w-7 text-cyan-500" />
-                        <span className="text-lg sm:text-xl font-bold text-cyan-600">WaaS</span>
-                    </div>
                     <Sheet>
                         <SheetTrigger asChild>
-                            <button className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
+                            <button className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer">
                                 {user?.image && (
                                     <div className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-cyan-100 flex items-center justify-center overflow-hidden border-2 border-cyan-400">
                                         <img src={user.image} alt="User" className="h-full w-full object-cover" />
@@ -67,7 +62,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                 <div className="flex flex-col gap-3 items-center">
                                     <Button 
                                         variant="outline" 
-                                        className="w-3/4 gap-2 justify-start"
+                                        className="w-3/4 gap-2 justify-start cursor-pointer"
                                         onClick={onShowSecretKey}
                                     >
                                         <Key className="h-4 w-4" />
@@ -75,7 +70,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                     </Button>
                                     <Button 
                                         variant="destructive" 
-                                        className="w-3/4 gap-2 justify-start"
+                                        className="w-3/4 gap-2 justify-start cursor-pointer"
                                         onClick={onLogout}
                                     >
                                         <LogOut className="h-4 w-4" />
@@ -86,34 +81,6 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                         </SheetContent>
                     </Sheet>
                 </div>
-
-                {/* Navigation - Only visible on desktop */}
-                <nav className="hidden sm:flex gap-6 px-8 py-4 rounded-2xl w-3/4 mx-auto bg-white border border-cyan-100 shadow-sm justify-center">
-                    <button
-                        className={`px-8 py-3 rounded-full font-semibold text-base focus:outline-none transition-colors duration-200 ${activeTab === 'dashboard' ? 'bg-cyan-500 text-white hover:bg-cyan-400' : 'bg-white hover:bg-cyan-400 text-cyan-500 border-2 border-cyan-200'}`}
-                        onClick={() => setActiveTab('dashboard')}
-                    >
-                        Dashboard
-                    </button>
-                    <button
-                        className={`px-8 py-3 rounded-full font-semibold text-base focus:outline-none transition-colors duration-200 ${activeTab === 'send' ? 'bg-cyan-500 text-white hover:bg-cyan-400' : 'bg-white hover:bg-cyan-400 hover:text-white text-cyan-500 border-2 border-cyan-200'}`}
-                        onClick={() => setActiveTab('send')}
-                    >
-                        Send
-                    </button>
-                    <button
-                        className={`px-8 py-3 rounded-full font-semibold text-base focus:outline-none transition-colors duration-200 ${activeTab === 'receive' ? 'bg-cyan-500 text-white hover:bg-cyan-400' : 'bg-white hover:bg-cyan-400 hover:text-white text-cyan-500 border-2 border-cyan-200'}`}
-                        onClick={() => setActiveTab('receive')}
-                    >
-                        Receive
-                    </button>
-                    <button
-                        className={`px-8 py-3 rounded-full font-semibold text-base focus:outline-none transition-colors duration-200 ${activeTab === 'swap' ? 'bg-cyan-500 text-white hover:bg-cyan-400' : 'bg-white hover:bg-cyan-400 hover:text-white text-cyan-500 border-2 border-cyan-200'}`}
-                        onClick={() => setActiveTab('swap')}
-                    >
-                        Swap
-                    </button>
-                </nav>
                                     
                 {/* Wallet Card Main */}
                 <div className="bg-gradient-to-r from-cyan-500 to-cyan-400 p-4 sm:p-6 text-white rounded-b-2xl -mt-5">
@@ -125,7 +92,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-6 w-6 rounded-full bg-white/20 hover:bg-white/30"
+                                    className="h-6 w-6 rounded-full bg-white/20 hover:bg-white/30 cursor-pointer"
                                     onClick={copyToClipboard}
                                 >
                                     <Copy className="h-3 w-3" />
@@ -136,28 +103,28 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                             <Button
                                 variant="secondary"
                                 size="sm"
-                                className="bg-white text-cyan-500 hover:bg-white/90 border-0 flex-1 sm:flex-none"
+                                className="bg-white text-cyan-500 hover:bg-white/90 border-0 flex-1 sm:flex-none cursor-pointer text-xs sm:text-sm px-2 sm:px-4"
                                 onClick={() => setActiveTab('receive')}
                             >
-                                <Download className="h-4 w-4 mr-1" />
+                                <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                                 Receive
                             </Button>
                             <Button
                                 variant="secondary"
                                 size="sm"
-                                className="bg-white text-cyan-500 hover:bg-white/90 border-0 flex-1 sm:flex-none"
+                                className="bg-white text-cyan-500 hover:bg-white/90 border-0 flex-1 sm:flex-none cursor-pointer text-xs sm:text-sm px-2 sm:px-4"
                                 onClick={() => setActiveTab('send')}
                             >
-                                <Send className="h-4 w-4 mr-1" />
+                                <Send className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                                 Send
                             </Button>
                             <Button
                                 variant="secondary"
                                 size="sm"
-                                className="bg-white text-cyan-500 hover:bg-white/90 border-0 flex-1 sm:flex-none sm:hidden"
+                                className="bg-white text-cyan-500 hover:bg-white/90 border-0 flex-1 sm:flex-none sm:hidden cursor-pointer text-xs sm:text-sm px-2 sm:px-4"
                                 onClick={() => setActiveTab('swap')}
                             >
-                                <ArrowRight className="h-4 w-4 mr-1" />
+                                <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                                 Swap
                             </Button>
                         </div>
@@ -212,7 +179,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                         <div key={key} className="flex items-center justify-between p-3 sm:p-4 bg-slate-50 rounded-lg">
                                             <div className="flex items-center gap-2 sm:gap-3">
                                                 <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-cyan-100 flex items-center justify-center">
-                                                    <img src={token.imageLink} alt={token.name} />
+                                                    <img src={token.imageLink} alt={""} />
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-cyan-700 text-sm sm:text-base">{token.name}</p>
@@ -297,7 +264,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                 {transactions.length > 3 && (
                                     <Button 
                                         variant="outline" 
-                                        className="flex items-center gap-2 w-full"
+                                        className="flex items-center gap-2 w-full cursor-pointer"
                                         onClick={() => setShowAllTransactions(!showAllTransactions)}
                                     >
                                         <ArrowRight className={`h-4 w-4 transition-transform ${showAllTransactions ? 'rotate-180' : ''}`} />
@@ -428,7 +395,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                 {transactions.length > 3 && (
                                     <Button 
                                         variant="outline" 
-                                        className="w-full text-sm"
+                                        className="w-full text-sm cursor-pointer"
                                         onClick={() => setShowAllTransactions(!showAllTransactions)}
                                     >
                                         {showAllTransactions ? 'View Less' : 'View All'}
