@@ -21,7 +21,7 @@ export default function Navigation({ activeTab, setActiveTab }: NavigationProps)
                     key={id}
                     onClick={() => setActiveTab(id)}
                     className={`
-                        relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm
+                        relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm cursor-pointer
                         transition-all duration-200 ease-in-out
                         ${activeTab === id 
                             ? 'text-white bg-cyan-500 shadow-md shadow-cyan-500/20' 
