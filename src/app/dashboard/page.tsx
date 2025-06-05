@@ -161,7 +161,7 @@ export default function Dashboard() {
                     )}
                     {activeTab === 'send' && <SendTab tokens={tokens || []} walletAddress={walletAddress} solBalance={solBalance} solPrice={solPrice} />}
                     {activeTab === 'receive' && <ReceiveTab walletAddress={walletAddress} copyToClipboard={copyToClipboard} />}
-                    {activeTab === 'swap' && <SwapTab />}
+                    {activeTab === 'swap' && <SwapTab walletAddress={walletAddress} />}
                     
                 </main>
             </div>

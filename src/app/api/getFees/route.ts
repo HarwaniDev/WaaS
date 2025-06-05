@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, TransactionMessage } from "@solana/web3.js";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import prisma from "@/lib/prisma";
+
 async function getFees(req: NextRequest) {
 
     const session = await getServerSession(authOptions);
@@ -16,7 +17,7 @@ async function getFees(req: NextRequest) {
         const { publicKey, sol, recipient, mint, amount } = await req.json();
         const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
 
-        // // Input validation
+        // Input validation
         if (!publicKey || typeof publicKey !== 'string' || publicKey.length > 44) {
             return NextResponse.json({
                 error: "Invalid input"

@@ -21,12 +21,12 @@ export async function getQuote(inputMint: string, amount: number): Promise<numbe
                 id: "test",
                 method: "getAsset",
                 params: [
-                    "7fUAJdStEuGbc3sM84cKRL6yYaaSstyLSU4ve5oovLS7"
+                    inputMint
                 ]
             }),
             axios.get(`https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=So11111111111111111111111111111111111111112&amount=${amount}`)
         ]);
-        return jupResponse.data.outAmount / heliusResponse.data.calue.decimals;
+        return jupResponse.data.outAmount / heliusResponse.data.result.token_info.decimals;
 
     } catch (error) {
         console.error("error getting quote: ", error);

@@ -114,7 +114,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                         Swap
                     </button>
                 </nav>
-
+                                    
                 {/* Wallet Card Main */}
                 <div className="bg-gradient-to-r from-cyan-500 to-cyan-400 p-4 sm:p-6 text-white rounded-b-2xl -mt-5">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-4 sm:mb-6">
