@@ -131,26 +131,48 @@ const RaydiumSVG = () => (
 const BackgroundDecorations = () => {
     return (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-50/50 via-transparent to-blue-50/50 dark:from-cyan-950/20 dark:to-blue-950/20" />
+            
+            {/* Animated grid pattern */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+            
             {/* Left Side Stickers */}
-            <div className="absolute top-24 left-0 opacity-30 animate-float -translate-x-1/6">
+            <div className="absolute top-24 left-0 opacity-20 animate-float -translate-x-1/6">
                 <SolanaSVG />
             </div>
-            <div className="absolute top-1/2 left-0 opacity-30 animate-float -translate-x-1/24" style={{ animationDelay: '1s' }}>
+            <div className="absolute top-1/2 left-0 opacity-20 animate-float -translate-x-1/24" style={{ animationDelay: '1s' }}>
                 <USDTSVG />
             </div>
-            <div className="absolute bottom-24 left-0 opacity-30 animate-float -translate-x-1/12" style={{ animationDelay: '2s' }}>
+            <div className="absolute bottom-24 left-0 opacity-20 animate-float -translate-x-1/12" style={{ animationDelay: '2s' }}>
                 <JupiterSVG />
             </div>
 
             {/* Right Side Stickers */}
-            <div className="absolute top-32 right-0 opacity-30 animate-float translate-x-1/6">
+            <div className="absolute top-32 right-0 opacity-20 animate-float translate-x-1/6">
                 <USDCSVG />
             </div>
-            <div className="absolute bottom-1/3 right-0 opacity-30 animate-float translate-x-1/8" style={{ animationDelay: '2s' }}>
+            <div className="absolute bottom-1/3 right-0 opacity-20 animate-float translate-x-1/8" style={{ animationDelay: '2s' }}>
                 <RaydiumSVG />
             </div>
-            <div className="absolute bottom-10 right-0 opacity-30 animate-float translate-x-1/12" style={{ animationDelay: '1s' }}>
+            <div className="absolute bottom-10 right-0 opacity-20 animate-float translate-x-1/12" style={{ animationDelay: '1s' }}>
                 <SolanaSVG />
+            </div>
+
+            {/* Floating particles */}
+            <div className="absolute inset-0">
+                {[...Array(20)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="absolute w-1 h-1 bg-cyan-500/30 rounded-full"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animation: `float ${5 + Math.random() * 5}s ease-in-out infinite`,
+                            animationDelay: `${Math.random() * 5}s`
+                        }}
+                    />
+                ))}
             </div>
         </div>
     );
