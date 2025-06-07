@@ -2,7 +2,7 @@ import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 async function getQuote(req: NextRequest) {
 

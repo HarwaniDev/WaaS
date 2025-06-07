@@ -1,7 +1,8 @@
 import { Keypair } from "@solana/web3.js";
 import { AuthOptions } from "next-auth";
+import { split, combine } from 'shamir-secret-sharing';
 import Google from "next-auth/providers/google";
-import prisma from "./prisma";
+import { prisma, prisma2, prisma3 } from "./prisma";
 import axios from "axios";
 
 export const authOptions: AuthOptions = {
@@ -31,8 +32,20 @@ export const authOptions: AuthOptions = {
           // create a new address for the newly registered user
           const keypair = Keypair.generate();
           const publicKey = keypair.publicKey.toBase58();
-          const privateKey = Buffer.from(keypair.secretKey).toString('base64');
-          await prisma?.user.create({
+          const [share1, share2, share3] = await split(keypair.secretKey, 3, 2);
+
+          const userData = {
+            email: user.email,
+            name: user.name,
+            profilePicture: user.image,
+            solWallet: {
+              create: {
+                publicKey: publicKey,
+              }
+            }
+          };
+
+          const newUser = await prisma?.user.create({
             data: {
               email: user.email,
               name: user.name,
@@ -40,11 +53,43 @@ export const authOptions: AuthOptions = {
               solWallet: {
                 create: {
                   publicKey: publicKey,
-                  privateKey: privateKey
+                  KeyShare: {
+                    create: {
+                      index: 1,
+                      share: share1
+                    }
+                  }
                 }
               }
             }
+          });
+
+          const solWallet = await prisma.solWallet.findFirst({
+            where: {
+              userId: newUser.id
+            }
           })
+
+          // create keyshare2 and keyshare3
+          await Promise.all([
+            prisma2.keyShare2.create({
+              data: {
+                index: 2,
+                share: share2,
+                solWalletId: solWallet!.id
+              }
+            }),
+            prisma3.keyShare3.create({
+              data: {
+                index: 3,
+                share: share3,
+                solWalletId: solWallet!.id
+              }
+            })
+          ])
+
+
+
 
           // get all the addresses
           const allWallets = await prisma.solWallet.findMany();

@@ -1,7 +1,7 @@
 import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import axios from "axios";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getAssetDetails } from "@/utils/helpers";

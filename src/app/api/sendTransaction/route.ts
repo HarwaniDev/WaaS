@@ -3,7 +3,8 @@ import { clusterApiUrl, Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, System
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import prisma from "@/lib/prisma";
+import { prisma, prisma2, prisma3 } from "@/lib/prisma";
+import { combine } from "shamir-secret-sharing";
 
 async function sendTransaction(req: NextRequest) {
 
@@ -11,7 +12,7 @@ async function sendTransaction(req: NextRequest) {
     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
     const latestBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
-    if (!session?.user?.email) {    
+    if (!session?.user?.email) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     };
 
@@ -24,14 +25,35 @@ async function sendTransaction(req: NextRequest) {
             where: {
                 publicKey: publicKey
             }
-        });
+        })
         if (!user) {
             return NextResponse.json({
                 message: "user not found"
             }, { status: 404 });
         }
-        const userSecretKey = Buffer.from(user.privateKey, "base64");
-        const userKeyPair = Keypair.fromSecretKey(userSecretKey);
+        const result = await Promise.all([
+            prisma.keyShare.findFirst({
+                where: {
+                    solWalletId: user.id
+                }
+            }),
+            prisma2.keyShare2.findFirst({
+                where: {
+                    solWalletId: user.id
+                }
+            }),
+            prisma3.keyShare3.findFirst({
+                where: {
+                    solWalletId: user.id
+                }
+            })
+        ]);
+
+        const shares = result.filter((s) => s !== null && s !== undefined).map((s) => s!.share);
+        console.log(shares);
+
+        const secretKey = await combine(shares);
+        const userKeyPair = Keypair.fromSecretKey(secretKey);
 
         if (sol) {
             // create instruction

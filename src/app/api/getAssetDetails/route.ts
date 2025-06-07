@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/authOptions";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getAssetDetails } from "@/utils/helpers";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -61,7 +61,7 @@ async function getDetails(req: NextRequest) {
             response[mint] = details;
         }
 
-        return NextResponse.json(response, {status: 200})
+        return NextResponse.json(response, { status: 200 })
     }
     catch (error) {
         return NextResponse.json({
@@ -70,4 +70,4 @@ async function getDetails(req: NextRequest) {
     }
 }
 
-export {getDetails as POST}
+export { getDetails as POST }

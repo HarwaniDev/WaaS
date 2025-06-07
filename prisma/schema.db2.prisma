@@ -1,0 +1,19 @@
+datasource db2 {
+    provider = "postgresql"
+    url      = env("DATABASE_URL_2")
+}
+
+generator client2 {
+    provider = "prisma-client-js"
+    output   = "./generated/db2"
+}
+
+model KeyShare2 {
+    id          String   @id @default(uuid())
+    solWalletId String
+    index       Int // Share index (e.g., 1, 2, 3)
+    share       Bytes
+    createdAt   DateTime @default(now())
+
+    @@unique([solWalletId, index]) // Prevent duplicate shares for same wallet
+}

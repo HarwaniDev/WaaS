@@ -50,20 +50,22 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
     const [transactionSignature, setTransactionSignature] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [userTokens, setUserTokens] = useState<any[]>([]);
+    const [solBalance, setSolBalance] = useState<number>(0);
 
-    // Fetch user's tokens on component mount
+    // Fetch user's tokens and SOL balance on component mount
     useEffect(() => {
-        const fetchUserTokens = async () => {
+        const fetchUserAssets = async () => {
             try {
                 const response = await axios.post('/api/getAssets', {
                     publicKey: walletAddress
                 });
                 setUserTokens(response.data.result || []);
+                setSolBalance(response.data.solBalance || 0);
             } catch (error) {
-                console.error('Error fetching user tokens:', error);
+                console.error('Error fetching user assets:', error);
             }
         };
-        fetchUserTokens();
+        fetchUserAssets();
     }, [walletAddress]);
 
     // Check if user has sufficient balance
@@ -71,12 +73,31 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
         if (!amount || !inputToken) return false;
         
         const inputTokenInfo = isCustomInputMint ? selectedInputTokenDetails : getTokenInfo(inputToken);
-        const userToken = userTokens.find(t => t.mint === inputTokenInfo.mint);
-        
+        const amountWithDecimals = Number(amount) * Math.pow(10, inputTokenInfo.decimals);
+
+        // Handle SOL balance separately
+        if (inputTokenInfo.mint === "So11111111111111111111111111111111111111112") {
+            return solBalance >= Number(amount);
+        }
+
+        // Handle other tokens
+        const userToken = userTokens.find(t => t.mintAddress === inputTokenInfo.mint);
         if (!userToken) return false;
         
-        const amountWithDecimals = Number(amount) * Math.pow(10, inputTokenInfo.decimals);
-        return userToken.amount >= amountWithDecimals;
+        return (userToken.amount * Math.pow(10, userToken.decimals)) >= amountWithDecimals;
+    };
+
+    // Check if amount is valid
+    const isValidAmount = () => {
+        if (!amount) return false;
+        const numAmount = Number(amount);
+        return !isNaN(numAmount) && numAmount > 0;
+    };
+
+    // Check if slippage is within acceptable range
+    const isSlippageAcceptable = () => {
+        if (!quote) return false;
+        return quote.slippageBps <= 1000; // 10% maximum slippage
     };
 
     const handleSwap = async () => {
@@ -86,6 +107,14 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
         setError(null);
         
         try {
+            if (!isValidAmount()) {
+                throw new Error('Please enter a valid amount');
+            }
+
+            if (!isSlippageAcceptable()) {
+                throw new Error('Slippage is too high. Please try again later.');
+            }
+
             const response = await axios.post('/api/sendSwapTransaction', {
                 publicKey: walletAddress,
                 quote: quote
@@ -93,7 +122,13 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
             
             setTransactionSignature(response.data.txid);
         } catch (error: any) {
-            setError(error.response?.data?.error || 'Failed to execute swap');
+            let errorMessage = 'Failed to execute swap';
+            if (error.response?.data?.error) {
+                errorMessage = error.response.data.error;
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            setError(errorMessage);
         } finally {
             setIsSwapping(false);
         }
@@ -383,18 +418,20 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                 {!transactionSignature && (
                     <Button
                         className={`w-full mt-4 text-white font-medium ${
-                            (!quote || !amount || isSwapping || !hasSufficientBalance()) 
+                            (!quote || !amount || isSwapping || !hasSufficientBalance() || !isValidAmount() || !isSlippageAcceptable()) 
                             ? 'bg-gray-400 cursor-not-allowed hover:bg-gray-400' 
                             : 'bg-cyan-500 hover:bg-cyan-600'
                         }`}
                         onClick={handleSwap}
-                        disabled={!quote || !amount || isSwapping || !hasSufficientBalance()}
+                        disabled={!quote || !amount || isSwapping || !hasSufficientBalance() || !isValidAmount() || !isSlippageAcceptable()}
                     >
                         {isSwapping ? "Swapping..." : 
                          !amount ? "Enter an amount" :
+                         !isValidAmount() ? "Invalid amount" :
                          !inputToken && !customInputMint ? "Select input token" :
                          !outputToken && !customOutputMint ? "Select output token" :
-                         !hasSufficientBalance() ? "Insufficient Balance" : 
+                         !hasSufficientBalance() ? "Insufficient Balance" :
+                         !isSlippageAcceptable() ? "High slippage" :
                          "Confirm and Swap"}
                     </Button>
                 )}

@@ -3,7 +3,7 @@ import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 async function getFees(req: NextRequest) {
 

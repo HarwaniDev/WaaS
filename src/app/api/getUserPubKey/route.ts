@@ -1,22 +1,22 @@
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/authOptions";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 async function getUserPublicKey(req: NextRequest) {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
-        return NextResponse.json({ message: "Unauthorized" }, {status: 401})
-    }    
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    }
 
     try {
         const { email } = await req.json();
-        
+
         // Input validation
         if (!email || typeof email !== 'string' || email.length > 100) {
-            return NextResponse.json({ 
-                error: "Invalid input" 
+            return NextResponse.json({
+                error: "Invalid input"
             }, { status: 400 });
         }
 
@@ -27,8 +27,8 @@ async function getUserPublicKey(req: NextRequest) {
         });
 
         if (!requestingUser) {
-            return NextResponse.json({ 
-                error: "User not found" 
+            return NextResponse.json({
+                error: "User not found"
             }, { status: 404 });
         }
 
@@ -37,18 +37,18 @@ async function getUserPublicKey(req: NextRequest) {
                 email: email
             }
         });
-        
+
 
         if (!targetUser) {
-            return NextResponse.json({ 
-                error: "User not found" 
+            return NextResponse.json({
+                error: "User not found"
             }, { status: 404 });
         }
 
-        if(requestingUser.id !== targetUser.id) {
+        if (requestingUser.id !== targetUser.id) {
             return NextResponse.json({
                 error: "You don't have the authority to get another person's key details"
-            }, {status: 403})
+            }, { status: 403 })
         };
 
         // Get the wallet
@@ -59,8 +59,8 @@ async function getUserPublicKey(req: NextRequest) {
         });
 
         if (!wallet) {
-            return NextResponse.json({ 
-                error: "Wallet not found" 
+            return NextResponse.json({
+                error: "Wallet not found"
             }, { status: 404 });
         }
 

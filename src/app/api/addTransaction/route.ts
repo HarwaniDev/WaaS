@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 async function addTransaction(req: NextRequest) {
     const body = await req.json();
@@ -53,7 +53,7 @@ async function addTransaction(req: NextRequest) {
             });
         };
     }
-    
+
     // for transactions involving token transfers
     if (body.tokenTransfers.length !== 0) {
         const tokenTransfers = body.tokenTransfers[0];
@@ -62,36 +62,36 @@ async function addTransaction(req: NextRequest) {
         const mintAddress = tokenTransfers.mint;
         const tokenAmount = tokenTransfers.tokenAmount;
 
-        
-    const checkSender = await prisma.solWallet.findFirst({
-        where: {
-            publicKey: sender
-        }
-    });
-    const checkReciever = await prisma.solWallet.findFirst({
-        where: {
-            publicKey: reciever
-        }
-    })
 
-    const involvedWallets = [checkSender, checkReciever].filter(Boolean);
-    for (const wallet of involvedWallets) {
-        await prisma.transaction.create({
-            data: {
-                signature: signature,
-                sender: sender,
-                reciever: reciever,
-                tokenAmount: tokenAmount,
-                timestamp: timestamp,
-                fees: fees,
-                type: "TOKEN",
-                mint: mintAddress,
-                solWallet: {
-                    connect: { publicKey: wallet?.publicKey }
-                }
+        const checkSender = await prisma.solWallet.findFirst({
+            where: {
+                publicKey: sender
             }
         });
-    };
+        const checkReciever = await prisma.solWallet.findFirst({
+            where: {
+                publicKey: reciever
+            }
+        })
+
+        const involvedWallets = [checkSender, checkReciever].filter(Boolean);
+        for (const wallet of involvedWallets) {
+            await prisma.transaction.create({
+                data: {
+                    signature: signature,
+                    sender: sender,
+                    reciever: reciever,
+                    tokenAmount: tokenAmount,
+                    timestamp: timestamp,
+                    fees: fees,
+                    type: "TOKEN",
+                    mint: mintAddress,
+                    solWallet: {
+                        connect: { publicKey: wallet?.publicKey }
+                    }
+                }
+            });
+        };
     }
 
 

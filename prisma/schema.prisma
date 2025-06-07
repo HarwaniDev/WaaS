@@ -24,15 +24,26 @@ model User {
 model SolWallet {
   id           String        @id @default(uuid())
   publicKey    String        @unique
-  privateKey   String        @unique
   userId       String        @unique
   user         User          @relation(fields: [userId], references: [id])
   transactions Transaction[]
+  KeyShare    KeyShare?
+}
+
+model KeyShare {
+  id          String    @id @default(uuid())
+  solWalletId String    @unique
+  index       Int       // Share index (e.g., 1, 2, 3)
+  share       Bytes       
+  createdAt   DateTime  @default(now())
+  solWallet   SolWallet @relation(fields: [solWalletId], references: [id])
+
+  @@unique([solWalletId, index]) // Prevent duplicate shares for same wallet
 }
 
 model Transaction {
-  id          String     @id @default(uuid())
-  signature   String     @unique
+  id          String       @id @default(uuid())
+  signature   String       @unique
   timestamp   BigInt
   sender      String
   reciever    String
@@ -41,16 +52,14 @@ model Transaction {
   amount      BigInt? // this field represents sol transferred (sol)
   tokenAmount BigInt? // this field represents any token transferred (usdc, usdt, trump)
   fees        BigInt
-  type        TransferType 
+  type        TransferType
   solWalletId String
-  solWallet   SolWallet  @relation(fields: [solWalletId], references: [id])
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  solWallet   SolWallet    @relation(fields: [solWalletId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
-
 
 enum TransferType {
   NATIVE
   TOKEN
 }
-
