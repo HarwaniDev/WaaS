@@ -5,12 +5,20 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Wallet, Zap, Globe } from "lucide-react"
 import { signIn, signOut, useSession } from "next-auth/react"
+import { motion } from "framer-motion"
+import { useInView } from "framer-motion"
+import { useRef } from "react"
 
 export default function Home() {
-
   const session = useSession();
-  return (
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
+  const ref3 = useRef(null);
+  const isInView1 = useInView(ref1, { once: true });
+  const isInView2 = useInView(ref2, { once: true });
+  const isInView3 = useInView(ref3, { once: true });
 
+  return (
     <div className="flex flex-col min-h-screen">
       <header className="border-b">
         <div className="container flex h-16 items-center justify-between">
@@ -38,7 +46,12 @@ export default function Home() {
       </header>
       <main className="flex-1">
         <section className="py-20 text-center">
-          <div className="container px-4 md:px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="container px-4 md:px-6"
+          >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6">
               The wallet <span className="text-muted-foreground">of tomorrow,</span>{" "}
               <span className="text-cyan-500">today</span>
@@ -49,16 +62,28 @@ export default function Home() {
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Custodial cloud wallet for you
             </p>
-            <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600">
+            <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600" onClick={() => {
+              if (session.data?.user) {
+                window.location.href = "/dashboard";
+              } else {
+                signIn("google", {callbackUrl: "http://localhost:3000/dashboard"});
+              }
+            }}>
               <Image src="/google.svg?height=20&width=20" width={20} height={20} alt="Google" className="mr-2" />
               Get started
             </Button>
-          </div>
+          </motion.div>
         </section>
 
         <section className="py-20 bg-slate-50">
           <div className="container px-4 md:px-6">
-            <div className="grid gap-8 md:grid-cols-3">
+            <motion.div 
+              ref={ref1}
+              initial={{ opacity: 0, y: 50 }}
+              animate={isInView1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="grid gap-8 md:grid-cols-3"
+            >
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="h-10 w-10 bg-cyan-100 rounded-md flex items-center justify-center mb-4">
                   <Wallet className="h-5 w-5 text-cyan-500" />
@@ -80,13 +105,19 @@ export default function Home() {
                 <h3 className="text-lg font-bold mb-2">WaaS Wallet</h3>
                 <p className="text-sm text-muted-foreground">The world's simplest wallet.</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="mt-16 bg-white p-8 rounded-lg shadow-sm">
+            <motion.div 
+              ref={ref2}
+              initial={{ opacity: 0, y: 50 }}
+              animate={isInView2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="mt-16 bg-white p-8 rounded-lg shadow-sm"
+            >
               <div className="flex flex-col lg:flex-row gap-8 items-center">
                 <div className="flex-1">
                   <Image
-                    src="/placeholder.svg?height=500&width=600"
+                    src="/wallet-interface.png"
                     width={600}
                     height={500}
                     alt="waas wallet interface"
@@ -136,41 +167,41 @@ export default function Home() {
                   </ul>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
         <section className="py-20">
-          <div className="container px-4 md:px-6 text-center">
+          <motion.div 
+            ref={ref3}
+            initial={{ opacity: 0, y: 50 }}
+            animate={isInView3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="container px-4 md:px-6 text-center"
+          >
             <h2 className="text-3xl font-bold mb-4">Ready to transform your wallet experience?</h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Join thousands of users who have simplified their digital asset management with waas.
             </p>
-            <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600">
+            <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600" onClick={() => {
+              if (session.data?.user) {
+                window.location.href = "/dashboard";
+              } else {
+                signIn("google", {callbackUrl: "http://localhost:3000/dashboard"});
+              }
+            }}>
               Create Your Wallet
             </Button>
-          </div>
+          </motion.div>
         </section>
       </main>
       <footer className="border-t py-6">
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex justify-center items-center">
             <div className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-cyan-500" />
               <span className="text-sm font-medium">waas</span>
             </div>
-            <div className="flex gap-6">
-              <Link href="#" className="text-xs text-muted-foreground hover:text-foreground">
-                Terms
-              </Link>
-              <Link href="#" className="text-xs text-muted-foreground hover:text-foreground">
-                Privacy
-              </Link>
-              <Link href="#" className="text-xs text-muted-foreground hover:text-foreground">
-                Contact
-              </Link>
-            </div>
-            <div className="text-xs text-muted-foreground">© {new Date().getFullYear()} waas. All rights reserved.</div>
           </div>
         </div>
       </footer>
