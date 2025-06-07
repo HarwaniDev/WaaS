@@ -53,14 +53,14 @@ export default function Home() {
             className="container px-4 md:px-6"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6">
-              The wallet <span className="text-muted-foreground">of tomorrow,</span>{" "}
-              <span className="text-cyan-500">today</span>
+              Your Solana <span className="text-muted-foreground">wallet,</span>{" "}
+              <span className="text-cyan-500">simplified</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-2 max-w-2xl mx-auto">
-              Create a wallet with just a Google Account
+              Create and manage your Solana wallet with just a Google Account
             </p>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Custodial cloud wallet for you
+              Secure, custodial wallet for Solana tokens
             </p>
             <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600" onClick={() => {
               if (session.data?.user) {
@@ -88,22 +88,22 @@ export default function Home() {
                 <div className="h-10 w-10 bg-cyan-100 rounded-md flex items-center justify-center mb-4">
                   <Wallet className="h-5 w-5 text-cyan-500" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">WaaS Wallet Adapter</h3>
-                <p className="text-sm text-muted-foreground">Make blockchain apps consumer-ready.</p>
+                <h3 className="text-lg font-bold mb-2">Secure Storage</h3>
+                <p className="text-sm text-muted-foreground">Advanced key sharing mechanism for maximum security.</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="h-10 w-10 bg-cyan-100 rounded-md flex items-center justify-center mb-4">
                   <Zap className="h-5 w-5 text-cyan-500" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">WaaS Pro</h3>
-                <p className="text-sm text-muted-foreground">Send digital assets at scale, even to non-crypto users.</p>
+                <h3 className="text-lg font-bold mb-2">Token Swaps</h3>
+                <p className="text-sm text-muted-foreground">Seamlessly swap between Solana tokens with the best rates.</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="h-10 w-10 bg-cyan-100 rounded-md flex items-center justify-center mb-4">
                   <Globe className="h-5 w-5 text-cyan-500" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">WaaS Wallet</h3>
-                <p className="text-sm text-muted-foreground">The world's simplest wallet.</p>
+                <h3 className="text-lg font-bold mb-2">Asset Management</h3>
+                <p className="text-sm text-muted-foreground">Track your SOL and SPL tokens in one place.</p>
               </div>
             </motion.div>
 
@@ -117,7 +117,7 @@ export default function Home() {
               <div className="flex flex-col lg:flex-row gap-8 items-center">
                 <div className="flex-1">
                   <Image
-                    src="/wallet-interface.png"
+                    src="/image.png"
                     width={600}
                     height={500}
                     alt="waas wallet interface"
@@ -125,10 +125,9 @@ export default function Home() {
                   />
                 </div>
                 <div className="flex-1 space-y-6">
-                  <h2 className="text-3xl font-bold">Simplify your digital asset experience</h2>
+                  <h2 className="text-3xl font-bold">Your Solana Wallet, Simplified</h2>
                   <p className="text-muted-foreground">
-                    waas makes managing digital assets easy for everyone. No complicated setup, no technical knowledge
-                    required.
+                    WaaS makes managing your Solana assets effortless. Send, receive, and swap tokens with ease.
                   </p>
                   <ul className="space-y-4">
                     <li className="flex items-start gap-3">
@@ -136,9 +135,9 @@ export default function Home() {
                         <ArrowRight className="h-3 w-3 text-cyan-500" />
                       </div>
                       <div>
-                        <h4 className="font-medium">Instant Setup</h4>
+                        <h4 className="font-medium">One-Click Setup</h4>
                         <p className="text-sm text-muted-foreground">
-                          Create a wallet in seconds with your existing accounts
+                          Create your Solana wallet instantly with Google authentication
                         </p>
                       </div>
                     </li>
@@ -149,7 +148,7 @@ export default function Home() {
                       <div>
                         <h4 className="font-medium">Secure by Design</h4>
                         <p className="text-sm text-muted-foreground">
-                          Enterprise-grade security without the complexity
+                          Advanced key sharing mechanism protects your assets
                         </p>
                       </div>
                     </li>
@@ -158,9 +157,9 @@ export default function Home() {
                         <ArrowRight className="h-3 w-3 text-cyan-500" />
                       </div>
                       <div>
-                        <h4 className="font-medium">Send to Anyone</h4>
+                        <h4 className="font-medium">Token Swaps</h4>
                         <p className="text-sm text-muted-foreground">
-                          Share assets with anyone, even if they're new to crypto
+                          Swap between Solana tokens with competitive rates
                         </p>
                       </div>
                     </li>
@@ -179,9 +178,9 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="container px-4 md:px-6 text-center"
           >
-            <h2 className="text-3xl font-bold mb-4">Ready to transform your wallet experience?</h2>
+            <h2 className="text-3xl font-bold mb-4">Ready to manage your Solana assets?</h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join thousands of users who have simplified their digital asset management with waas.
+              Join users who are already managing their Solana tokens with WaaS.
             </p>
             <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600" onClick={() => {
               if (session.data?.user) {
@@ -200,7 +199,7 @@ export default function Home() {
           <div className="flex justify-center items-center">
             <div className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-cyan-500" />
-              <span className="text-sm font-medium">waas</span>
+              <span className="text-sm font-medium">WaaS</span>
             </div>
           </div>
         </div>
