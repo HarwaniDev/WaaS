@@ -33,7 +33,6 @@ export const authOptions: AuthOptions = {
           const keypair = Keypair.generate();
           const publicKey = keypair.publicKey.toBase58();
           const [share1, share2, share3] = await split(keypair.secretKey, 3, 2);
-          
           const newUser = await prisma?.user.create({
             data: {
               email: user.email,
