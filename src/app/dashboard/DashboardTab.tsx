@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Copy, Download, Key, LogOut, Send, Upload } from "lucide-react";
 import React, { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-
 import type { Token, Transaction } from "@/lib/interfaces";
+import Image from "next/image";
 
 interface DashboardTabProps {
     walletAddress: string;
@@ -14,17 +14,16 @@ interface DashboardTabProps {
     solBalance: number;
     solPrice: number;
     transactions: Transaction[];
-    assetDetails: { [key: string]: any };
+    assetDetails: { [key: string]: { name: string; symbol: string; imageLink: string; decimals: number } };
     copyToClipboard: () => void;
     user?: { image?: string; };
-    activeTab: 'dashboard' | 'send' | 'receive' | 'swap';
     setActiveTab: (tab: 'dashboard' | 'send' | 'receive' | 'swap') => void;
     firstName?: string;
     onLogout?: () => void;
     onShowSecretKey?: () => void;
 }
 
-export default function DashboardTab({ walletAddress, balance, tokens, solBalance, solPrice, transactions, assetDetails, copyToClipboard, user, activeTab, setActiveTab, firstName, onLogout, onShowSecretKey }: DashboardTabProps) {
+export default function DashboardTab({ walletAddress, balance, tokens, solBalance, solPrice, transactions, assetDetails, copyToClipboard, user, setActiveTab, firstName, onLogout, onShowSecretKey }: DashboardTabProps) {
     const [showAllTransactions, setShowAllTransactions] = useState(false);
     const displayedTransactions = showAllTransactions ? transactions : transactions.slice(0, 3);
 
@@ -167,19 +166,19 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-medium text-cyan-700 text-sm sm:text-base">{Number(solBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                        <p className="text-xs sm:text-sm text-cyan-400">${(solBalance * solPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                        <p className="font-medium text-cyan-700 text-sm sm:text-base">{Number(solBalance)}</p>
+                                        <p className="text-xs sm:text-sm text-cyan-400">${Number(solBalance * solPrice).toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                                     </div>
                                 </div>
-                                {tokens?.map((token: Token, key: number) => {
+                                {tokens?.map((token: Token) => {
                                     if (!token.name) {
                                         return null;
                                     }
                                     return (
-                                        <div key={key} className="flex items-center justify-between p-3 sm:p-4 bg-slate-50 rounded-lg">
+                                        <div key={token.mintAddress} className="flex items-center justify-between p-3 sm:p-4 bg-slate-50 rounded-lg">
                                             <div className="flex items-center gap-2 sm:gap-3">
                                                 <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-cyan-100 flex items-center justify-center">
-                                                    <img src={token.imageLink} alt={""} />
+                                                    <img src={token.imageLink} alt={token.name} />
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-cyan-700 text-sm sm:text-base">{token.name}</p>
@@ -187,8 +186,8 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="font-medium text-cyan-700 text-sm sm:text-base">{Number(token.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                                <p className="text-xs sm:text-sm text-cyan-400">{token.pricePerToken ? <>${(token.amount * token.pricePerToken).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</> : <>-</>}</p>
+                                                <p className="font-medium text-cyan-700 text-sm sm:text-base">{Number(token.amount)}</p>
+                                                <p className="text-xs sm:text-sm text-cyan-400">{token.pricePerToken ? <>${Number(token.amount * token.pricePerToken).toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</> : <>-</>}</p>
                                             </div>
                                         </div>
                                     )
@@ -201,7 +200,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                  <div className="flex justify-center items-center text-sm sm:text-base">
                                  No Transactions
                                 </div>}
-                                {displayedTransactions.map((tx: Transaction, index: number) => {
+                                {displayedTransactions.map((tx: Transaction) => {
                                     const isSender = tx.sender === walletAddress;
                                     const amount = tx.type === "NATIVE"
                                         ? Number(tx.amount) / Math.pow(10, 9)
@@ -252,10 +251,10 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                             </div>
                                             <div className="text-right">
                                                 <p className={`font-medium ${isSender ? 'text-red-500' : 'text-green-500'}`}>
-                                                    {isSender ? '-' : '+'}{formattedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {symbol}
+                                                    {isSender ? '-' : '+'}{formattedAmount} {symbol}
                                                 </p>
                                                 <p className="text-xs sm:text-sm text-cyan-400">
-                                                    ${(amount * (tx.type === "TOKEN" ? (tokenDetails?.pricePerToken || 0) : solPrice)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    ${Number(amount * (tx.type === "TOKEN" ? Number(tokenDetails?.pricePerToken || 0) : solPrice)).toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 5})}
                                                 </p>
                                             </div>
                                         </div>
@@ -309,16 +308,16 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-medium text-sm text-cyan-700">{Number(solBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                        <p className="text-xs text-cyan-400">${(solBalance * solPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                        <p className="font-medium text-sm text-cyan-700">{Number(solBalance)}</p>
+                                        <p className="text-xs text-cyan-400">${Number(solBalance * solPrice).toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                                     </div>
                                 </div>
-                                {tokens?.map((token: Token, key: number) => {
+                                {tokens?.map((token: Token) => {
                                     if (!token.name) {
                                         return null;
                                     }
                                     return (
-                                        <div key={key} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                        <div key={token.mintAddress} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                                             <div className="flex items-center gap-2">
                                                 <div className="h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center">
                                                     <img src={token.imageLink} alt={token.name} />
@@ -329,8 +328,8 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="font-medium text-sm text-cyan-700">{Number(token.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                                <p className="text-xs text-cyan-400">{token.pricePerToken ? <>${(token.amount * token.pricePerToken).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</> : <>-</>}</p>
+                                                <p className="font-medium text-sm text-cyan-700">{Number(token.amount)}</p>
+                                                <p className="text-xs text-cyan-400">{token.pricePerToken ? <>${Number(token.amount * token.pricePerToken).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</> : <>-</>}</p>
                                             </div>
                                         </div>
                                     )
@@ -350,6 +349,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                     const amount = tx.type === "NATIVE"
                                         ? Number(tx.amount) / Math.pow(10, 9)
                                         : Number(tx.tokenAmount);
+                                    const formattedAmount = amount;
                                     const tokenDetails = tx.type === "TOKEN" && tx.mint
                                         ? tokens?.find((t: Token) => t.mintAddress === tx.mint)
                                         : null;
@@ -380,7 +380,7 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                                     </div>
                                                 </div>
                                                 <p className={`font-medium text-sm ${isSender ? 'text-red-500' : 'text-green-500'}`}>
-                                                    {isSender ? '-' : '+'}{amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {symbol}
+                                                    {isSender ? '-' : '+'}{amount} {symbol}
                                                 </p>
                                             </div>
                                             <div className="text-xs text-cyan-400">

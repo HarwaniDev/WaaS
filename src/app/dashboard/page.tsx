@@ -12,47 +12,38 @@ import SwapTab from "./SwapTab";
 import BackgroundDecorations from "@/components/ui/BackgroundDecorations";
 import Navigation from "@/components/ui/Navigation";
 import toast from 'react-hot-toast';
-import { Connection } from "@solana/web3.js";
+import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 export default function Dashboard() {
-
+    const router = useRouter();
     const session = useSession();
-    const connection = new Connection("https://api.devnet.solana.com");
-    // implement below if condition so that only logged in user can visit the page.
-
-    // if(session.data?.user) {
-    //     return <></>
-    // }
 
     const [walletAddress, setWalletAddress] = useState("");
     const [balance, setBalance] = useState("");
-    const [tokens, setTokens] = useState<Token[]>();
+    const [tokens, setTokens] = useState<Token[]>([]);
     const [solBalance, setSolBalance] = useState(0);
     const [solPrice, setSolPrice] = useState(0);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [assetDetails, setAssetDetails] = useState<{ [key: string]: any }>({});
-    const [isLoading, setIsLoading] = useState(true);
+    const [assetDetails, setAssetDetails] = useState<{ [key: string]: { name: string; symbol: string; imageLink: string; decimals: number } }>({});
     const [activeTab, setActiveTab] = useState<'dashboard' | 'send' | 'receive' | 'swap'>('dashboard');
 
     const firstName = session.data?.user?.name || 'User';
 
-    // Fetch asset details for all token transactions
-    const fetchAssetDetails = async () => {
-        const tokenTransactions = transactions.filter(tx => tx.type === "TOKEN" && tx.mint);
-        const uniqueMints = [...new Set(tokenTransactions.map(tx => tx.mint))];
-
-        const response = await axios.post("http://localhost:3000/api/getAssetDetails", {
-            publicKey: walletAddress,
-            uniqueMints: uniqueMints
-        })        
-        setAssetDetails(response.data);
-    };
-
+    // Handle redirect for non-authenticated users
     useEffect(() => {
-        if (session.status === "loading") {
-            return;
+        if (!session.data?.user) {
+            const timer = setTimeout(() => {
+                router.push('/');
+            }, 2500);
+
+            return () => clearTimeout(timer);
         }
+    }, [session.data?.user, router]);
+
+    // Handle data fetching for authenticated users
+    useEffect(() => {
+        if (!session.data?.user) return;
 
         let solPriceValue: number;
 
@@ -90,7 +81,7 @@ export default function Dashboard() {
                 setSolBalance(response1.data.solBalance);
                 setTokens(response1.data.result);
                 setTransactions(response2.data.transactions);
-                
+
                 // Calculate total balance after we have both Solana price and assets
                 const solValue = response1.data.solBalance * solPriceValue;
                 const tokenValues = response1.data.result
@@ -102,27 +93,23 @@ export default function Dashboard() {
                 });
                 setBalance(totalBalance);
 
-                if (transactions.length > 0) {
-                    await fetchAssetDetails();
+                if (response2.data.transactions.length > 0) {
+                    const tokenTransactions = response2.data.transactions.filter((tx: Transaction) => tx.type === "TOKEN" && tx.mint);
+                    const uniqueMints = [...new Set(tokenTransactions.map((tx: Transaction) => tx.mint))];
+
+                    const response = await axios.post("http://localhost:3000/api/getAssetDetails", {
+                        publicKey: walletAddress,
+                        uniqueMints: uniqueMints
+                    });
+                    setAssetDetails(response.data);
                 }
-            } finally {
-                setIsLoading(false);
+            } catch (error) {
+                console.error("Error fetching data:", error);
             }
-        };
+        }
 
         getAssetsandTransactions();
-    }, [session]);
-
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center min-h-screen bg-slate-50">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-                    <p className="text-lg font-medium text-gray-600">Preparing your account...</p>
-                </div>
-            </div>
-        );
-    }
+    }, [session.data?.user]);
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(walletAddress);
@@ -138,8 +125,29 @@ export default function Dashboard() {
                 secondary: '#0EA5E9',
             },
         });
+    };
+
+    if (session.status === "loading") {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-slate-50">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+                    <p className="text-lg font-medium text-gray-600">Preparing your account...</p>
+                </div>
+            </div>
+        );
     }
 
+    if (!session.data?.user) {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-slate-50">
+                <div className="text-center">
+                    <p className="text-lg font-medium text-gray-600">Please log in to access the dashboard</p>
+                    <p className="text-sm text-gray-500 mt-2">Redirecting to home page...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-mesh">
@@ -158,27 +166,26 @@ export default function Dashboard() {
                             </button>
                         </div>
                     )}
-                    
+
                     {/* Navigation - Hidden on small devices */}
                     <div className="hidden md:flex justify-center mb-8">
                         <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
-                    
+
                     {activeTab === 'dashboard' && (
                         <div className="glass-effect rounded-2xl p-6 card-hover">
-                            <DashboardTab 
-                                walletAddress={walletAddress} 
-                                balance={balance} 
-                                tokens={tokens || []} 
-                                solBalance={solBalance} 
-                                solPrice={solPrice} 
-                                transactions={transactions} 
-                                assetDetails={assetDetails} 
-                                copyToClipboard={copyToClipboard} 
-                                user={session.data?.user ? { image: session.data.user.image ?? undefined } : undefined} 
-                                activeTab={activeTab} 
-                                setActiveTab={setActiveTab} 
-                                firstName={firstName} 
+                            <DashboardTab
+                                walletAddress={walletAddress}
+                                balance={balance}
+                                tokens={tokens || []}
+                                solBalance={solBalance}
+                                solPrice={solPrice}
+                                transactions={transactions}
+                                assetDetails={assetDetails}
+                                copyToClipboard={copyToClipboard}
+                                user={session.data?.user ? { image: session.data.user.image ?? undefined } : undefined}
+                                setActiveTab={setActiveTab}
+                                firstName={firstName}
                             />
                         </div>
                     )}

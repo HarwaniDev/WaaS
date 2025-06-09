@@ -48,7 +48,6 @@ model Transaction {
   sender      String
   reciever    String
   mint        String?
-  decimals    Int?
   amount      BigInt? // this field represents sol transferred (sol)
   tokenAmount BigInt? // this field represents any token transferred (usdc, usdt, trump)
   fees        BigInt

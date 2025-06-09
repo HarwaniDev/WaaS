@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { tokens } from "../../../public/assets";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface QuoteResponse {
     inputMint: string;
@@ -16,13 +17,42 @@ interface QuoteResponse {
     swapMode: string;
     slippageBps: number;
     priceImpactPct: number;
-    routePlan: any[];
+    routePlan: Array<{
+        swapInfo: {
+            ammKey: string;
+            label: string;
+            inputMint: string;
+            outputMint: string;
+            inAmount: string;
+            outAmount: string;
+            feeAmount: string;
+            feeMint: string;
+        };
+        percent: number;
+    }>;
     contextSlot: number;
     timeTaken: number;
 }
 
+interface TokenInfo {
+    name: string;
+    image: string;
+    decimals: number;
+    symbol?: string;
+    mint?: string;
+}
+
+interface CustomToken {
+    name: string;
+    symbol: string;
+    mint: string;
+    image: string;
+    imageLink?: string;
+    decimals: number;
+}
+
 // Helper to get token info by mint
-function getTokenInfo(mint: string | undefined) {
+function getTokenInfo(mint: string | undefined): TokenInfo {
     if (!mint) {
         return { name: 'Unknown', image: '', decimals: 6 };
     }
@@ -38,18 +68,16 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
     const [quote, setQuote] = useState<QuoteResponse | null>(null);
     const [isCustomInputMint, setIsCustomInputMint] = useState<boolean>(false);
     const [isCustomOutputMint, setIsCustomOutputMint] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
     const [isTokenModalOpen, setIsTokenModalOpen] = useState<boolean>(false);
     const [activeTokenType, setActiveTokenType] = useState<'input' | 'output'>('input');
     const [modalCustomMint, setModalCustomMint] = useState("");
-    const [modalCustomToken, setModalCustomToken] = useState<any>(null);
-    const [modalLoading, setModalLoading] = useState(false);
-    const [selectedInputTokenDetails, setSelectedInputTokenDetails] = useState<any>(null);
-    const [selectedOutputTokenDetails, setSelectedOutputTokenDetails] = useState<any>(null);
+    const [modalCustomToken, setModalCustomToken] = useState<CustomToken | null>(null);
+    const [selectedInputTokenDetails, setSelectedInputTokenDetails] = useState<CustomToken | null>(null);
+    const [selectedOutputTokenDetails, setSelectedOutputTokenDetails] = useState<CustomToken | null>(null);
     const [isSwapping, setIsSwapping] = useState(false);
     const [transactionSignature, setTransactionSignature] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [userTokens, setUserTokens] = useState<any[]>([]);
+    const [userTokens, setUserTokens] = useState<Token[]>([]);
     const [solBalance, setSolBalance] = useState<number>(0);
 
     // Fetch user's tokens and SOL balance on component mount
@@ -134,7 +162,7 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
         }
     };
 
-    const checkCustomMint = async (mintAddress: string, type: 'input' | 'output') => {
+    const checkCustomMint = async (mintAddress: string) => {
         // First check if it's in our tokens array
         const existingToken = tokens.find(t => t.mint === mintAddress);
         if (existingToken) {
@@ -166,15 +194,14 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
     const handleGetQuote = async () => {
         if (!amount || Number(amount) === 0 || (!inputToken && !customInputMint) || (!outputToken && !customOutputMint)) return;
 
-        setLoading(true);
         try {
             // Get token details for custom mints if needed
-            let inputTokenInfo = isCustomInputMint
-                ? await checkCustomMint(customInputMint, 'input')
+            const inputTokenInfo = isCustomInputMint
+                ? await checkCustomMint(customInputMint)
                 : tokens.find(t => t.mint === inputToken);
 
-            let outputTokenInfo = isCustomOutputMint
-                ? await checkCustomMint(customOutputMint, 'output')
+            const outputTokenInfo = isCustomOutputMint
+                ? await checkCustomMint(customOutputMint)
                 : tokens.find(t => t.mint === outputToken);
 
             if (!inputTokenInfo || !outputTokenInfo) {
@@ -193,8 +220,6 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
             setQuote(response.data.response);
         } catch (error) {
             console.error('Error getting quote:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -202,7 +227,7 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
     useEffect(() => {
         if (!amount || Number(amount) === 0) return;
         handleGetQuote();
-    }, [amount, inputToken, outputToken, customInputMint, customOutputMint]);
+    }, [amount, inputToken, outputToken, customInputMint, customOutputMint, handleGetQuote]);
 
     // Effect to update quote every 3 seconds
     useEffect(() => {
@@ -213,34 +238,32 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
         }, 3000);
 
         return () => clearInterval(interval);
-    }, [amount, inputToken, outputToken, customInputMint, customOutputMint]);
+    }, [amount, inputToken, outputToken, customInputMint, customOutputMint, handleGetQuote]);
 
     // Fetch custom token details in modal
     useEffect(() => {
         const fetchModalCustom = async () => {
             if (modalCustomMint.length > 20) {
-                setModalLoading(true);
                 // Check in tokens array first
                 const token = tokens.find(t => t.mint === modalCustomMint);
                 if (token) {
                     setModalCustomToken(token);
                 } else {
-                    const details = await checkCustomMint(modalCustomMint, activeTokenType);
+                    const details = await checkCustomMint(modalCustomMint);
                     if (details) {
                         setModalCustomToken(details);
                     } else {
                         setModalCustomToken(null);
                     }
                 }
-                setModalLoading(false);
             } else {
                 setModalCustomToken(null);
             }
         };
         fetchModalCustom();
-    }, [modalCustomMint, activeTokenType]);
+    }, [modalCustomMint, checkCustomMint]);
 
-    const handleTokenSelect = (tokenMint: string, customTokenObj?: any) => {
+    const handleTokenSelect = (tokenMint: string, customTokenObj?: CustomToken) => {
         if (activeTokenType === 'input') {
             setInputToken(tokenMint);
             setIsCustomInputMint(!!customTokenObj);
@@ -367,7 +390,6 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                                 onChange={e => setModalCustomMint(e.target.value)}
                                 className="mb-3 border-cyan-200 focus:ring-cyan-500"
                             />
-                            {modalLoading && <div className="text-cyan-700 mb-2">Loading...</div>}
                             {modalCustomMint.length > 20 ? (
                                 modalCustomToken ? (
                                     <div
@@ -381,7 +403,7 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                                         </div>
                                     </div>
                                 ) : (
-                                    !modalLoading && <div className="text-cyan-700 mb-2">No token found</div>
+                                    <div className="text-cyan-700 mb-2">No token found</div>
                                 )
                             ) : (
                                 <div className="grid grid-cols-1 gap-2 max-h-[calc(80vh-180px)] overflow-y-auto">

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Token } from "@/lib/interfaces";
 import axios from "axios";
+import Image from "next/image";
 
 interface SendTabProps {
     tokens?: Token[];
@@ -18,7 +19,6 @@ export default function SendTab({ tokens = [], walletAddress = "", solBalance = 
     const [selectedToken, setSelectedToken] = useState<Token | null>(null);
     const [recipient, setRecipient] = useState("");
     const [amount, setAmount] = useState("");
-    const [showTransactionDetails, setShowTransactionDetails] = useState(false);
     const [isReviewing, setIsReviewing] = useState(false);
     const [transactionFee, setTransactionFee] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -40,13 +40,11 @@ export default function SendTab({ tokens = [], walletAddress = "", solBalance = 
         const value = e.target.value;
         if (value === "" || /^\d*\.?\d*$/.test(value)) {
             setAmount(value);
-            setShowTransactionDetails(value !== "" && recipient !== "");
         }
     };
 
     const handleRecipientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setRecipient(e.target.value);
-        setShowTransactionDetails(e.target.value !== "" && amount !== "");
     };
 
     const handleReview = async () => {

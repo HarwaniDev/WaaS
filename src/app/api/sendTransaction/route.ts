@@ -50,8 +50,6 @@ async function sendTransaction(req: NextRequest) {
         ]);
 
         const shares = result.filter((s) => s !== null && s !== undefined).map((s) => s!.share);
-        console.log(shares);
-
         const secretKey = await combine(shares);
         const userKeyPair = Keypair.fromSecretKey(secretKey);
 

@@ -8,7 +8,7 @@ import { combine } from "shamir-secret-sharing";
 
 async function sendSwapTransaction(req: NextRequest) {
     const session = await getServerSession(authOptions);
-    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+    const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
 
     if (!session?.user?.email) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
