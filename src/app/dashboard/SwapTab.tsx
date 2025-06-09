@@ -6,7 +6,6 @@ import { ChevronDown } from "lucide-react";
 import { tokens } from "../../../public/assets";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { Token } from "@/lib/interfaces";
 
 interface QuoteResponse {
@@ -151,13 +150,18 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
             });
 
             setTransactionSignature(response.data.txid);
-        } catch (error: any) {
+        } catch (error: unknown) {
             let errorMessage = 'Failed to execute swap';
-            if (error.response?.data?.error) {
-                errorMessage = error.response.data.error;
-            } else if (error.message) {
+            
+            // Type guard for axios error
+            if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data) {
+                errorMessage = error.response.data.error as string;
+            } 
+            // Type guard for Error object
+            else if (error instanceof Error) {
                 errorMessage = error.message;
             }
+            
             setError(errorMessage);
         } finally {
             setIsSwapping(false);

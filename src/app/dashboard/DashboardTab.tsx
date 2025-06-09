@@ -348,7 +348,6 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                     const amount = tx.type === "NATIVE"
                                         ? Number(tx.amount) / Math.pow(10, 9)
                                         : Number(tx.tokenAmount);
-                                    const formattedAmount = amount;
                                     const tokenDetails = tx.type === "TOKEN" && tx.mint
                                         ? tokens?.find((t: Token) => t.mintAddress === tx.mint)
                                         : null;
