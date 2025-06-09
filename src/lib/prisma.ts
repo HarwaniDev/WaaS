@@ -32,8 +32,11 @@ const prisma3ClientSingleton = () => {
 };
 
 declare global {
+  // eslint-disable-next-line no-var
   var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
+  // eslint-disable-next-line no-var
   var prisma2: undefined | ReturnType<typeof prisma2ClientSingleton>;
+  // eslint-disable-next-line no-var
   var prisma3: undefined | ReturnType<typeof prisma3ClientSingleton>;
 }
 
