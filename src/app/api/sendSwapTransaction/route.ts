@@ -6,6 +6,14 @@ import axios from "axios";
 import { clusterApiUrl, Connection, Keypair, VersionedTransaction } from "@solana/web3.js";
 import { combine } from "shamir-secret-sharing";
 
+interface SwapError extends Error {
+    response?: {
+        data?: {
+            error?: string;
+        };
+    };
+}
+
 async function sendSwapTransaction(req: NextRequest) {
     const session = await getServerSession(authOptions);
     const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
@@ -114,16 +122,18 @@ async function sendSwapTransaction(req: NextRequest) {
             return NextResponse.json({
                 txid: txid
             }, { status: 200 });
-        } catch (swapError: any) {
+        } catch (swapError: unknown) {
             console.error('Swap error:', swapError);
+            const error = swapError as SwapError;
             return NextResponse.json({
-                error: swapError.response?.data?.error || swapError.message || "Failed to execute swap"
+                error: error.response?.data?.error || error.message || "Failed to execute swap"
             }, { status: 400 });
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Transaction error:', error);
+        const err = error as Error;
         return NextResponse.json({
-            error: error.message || "Internal server error"
+            error: err.message || "Internal server error"
         }, { status: 500 });
     }
 }
