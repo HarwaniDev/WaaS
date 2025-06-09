@@ -1,6 +1,6 @@
 import { Keypair } from "@solana/web3.js";
 import { AuthOptions } from "next-auth";
-import { split, combine } from 'shamir-secret-sharing';
+import { split } from 'shamir-secret-sharing';
 import Google from "next-auth/providers/google";
 import { prisma, prisma2, prisma3 } from "./prisma";
 import axios from "axios";
@@ -33,18 +33,7 @@ export const authOptions: AuthOptions = {
           const keypair = Keypair.generate();
           const publicKey = keypair.publicKey.toBase58();
           const [share1, share2, share3] = await split(keypair.secretKey, 3, 2);
-
-          const userData = {
-            email: user.email,
-            name: user.name,
-            profilePicture: user.image,
-            solWallet: {
-              create: {
-                publicKey: publicKey,
-              }
-            }
-          };
-
+          
           const newUser = await prisma?.user.create({
             data: {
               email: user.email,
