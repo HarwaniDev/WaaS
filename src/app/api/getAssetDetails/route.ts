@@ -55,7 +55,17 @@ async function getDetails(req: NextRequest) {
             }, { status: 301 })
         };
 
-        const response: { [key: string]: any } = {};
+        const response: {
+            [key: string]: 0 | {
+                name: string;
+                symbol: string;
+                mintAddress: string;
+                decimals: number;
+                amount: number;
+                pricePerToken: number;
+                imageLink: string;
+            }
+        } = {};
         for (const mint of uniqueMints) {
             const details = await getAssetDetails(mint, 0);
             response[mint] = details;
