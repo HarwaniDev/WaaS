@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -7,6 +7,7 @@ import { tokens } from "../../../public/assets";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { Token } from "@/lib/interfaces";
 
 interface QuoteResponse {
     inputMint: string;
@@ -99,8 +100,9 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
     // Check if user has sufficient balance
     const hasSufficientBalance = () => {
         if (!amount || !inputToken) return false;
-        
         const inputTokenInfo = isCustomInputMint ? selectedInputTokenDetails : getTokenInfo(inputToken);
+        if (!inputTokenInfo) return false;
+        
         const amountWithDecimals = Number(amount) * Math.pow(10, inputTokenInfo.decimals);
 
         // Handle SOL balance separately
@@ -109,9 +111,9 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
         }
 
         // Handle other tokens
-        const userToken = userTokens.find(t => t.mintAddress === inputTokenInfo.mint);
+        const userToken = userTokens.find(t => t.mintAddress === inputTokenInfo?.mint);
         if (!userToken) return false;
-        
+
         return (userToken.amount * Math.pow(10, userToken.decimals)) >= amountWithDecimals;
     };
 
@@ -130,10 +132,10 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
 
     const handleSwap = async () => {
         if (!quote || !amount) return;
-        
+
         setIsSwapping(true);
         setError(null);
-        
+
         try {
             if (!isValidAmount()) {
                 throw new Error('Please enter a valid amount');
@@ -147,7 +149,7 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                 publicKey: walletAddress,
                 quote: quote
             });
-            
+
             setTransactionSignature(response.data.txid);
         } catch (error: any) {
             let errorMessage = 'Failed to execute swap';
@@ -162,7 +164,7 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
         }
     };
 
-    const checkCustomMint = async (mintAddress: string) => {
+    const checkCustomMint = useCallback(async (mintAddress: string) => {
         // First check if it's in our tokens array
         const existingToken = tokens.find(t => t.mint === mintAddress);
         if (existingToken) {
@@ -189,9 +191,9 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
             console.error('Error getting custom token details:', error);
         }
         return null;
-    };
+    }, [walletAddress]);
 
-    const handleGetQuote = async () => {
+    const handleGetQuote = useCallback(async () => {
         if (!amount || Number(amount) === 0 || (!inputToken && !customInputMint) || (!outputToken && !customOutputMint)) return;
 
         try {
@@ -221,13 +223,13 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
         } catch (error) {
             console.error('Error getting quote:', error);
         }
-    };
+    }, [amount, inputToken, outputToken, customInputMint, customOutputMint, isCustomInputMint, isCustomOutputMint, checkCustomMint, walletAddress]);
 
     // Effect to fetch quote when amount changes
     useEffect(() => {
         if (!amount || Number(amount) === 0) return;
         handleGetQuote();
-    }, [amount, inputToken, outputToken, customInputMint, customOutputMint, handleGetQuote]);
+    }, [amount, handleGetQuote]);
 
     // Effect to update quote every 3 seconds
     useEffect(() => {
@@ -247,11 +249,23 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                 // Check in tokens array first
                 const token = tokens.find(t => t.mint === modalCustomMint);
                 if (token) {
-                    setModalCustomToken(token);
+                    setModalCustomToken({
+                        name: token.name,
+                        symbol: token.name,
+                        decimals: token.decimals,
+                        mint: token.mint,
+                        image: token.image
+                    });
                 } else {
                     const details = await checkCustomMint(modalCustomMint);
                     if (details) {
-                        setModalCustomToken(details);
+                        setModalCustomToken({
+                            name: details.name,
+                            symbol: details.name,
+                            decimals: details.decimals,
+                            mint: details.mint,
+                            image: details.image
+                        });
                     } else {
                         setModalCustomToken(null);
                     }
@@ -296,7 +310,7 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                         <Label className="text-cyan-700">Selling</Label>
                     </div>
                     <div className="flex justify-end items-center space-x-3 mb-3">
-                        <div 
+                        <div
                             className="flex items-center space-x-2 bg-cyan-100 rounded-lg px-3 py-1 cursor-pointer hover:bg-cyan-200 transition-colors"
                             onClick={() => openTokenModal('input')}
                         >
@@ -305,8 +319,8 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                                     const token = selectedInputTokenDetails || getTokenInfo(inputToken);
                                     return (
                                         <>
-                                            {token.image && <img src={token.image} alt={token.symbol ? token.symbol : token.name} className="w-7 h-7 rounded-full" />}
-                                            <span className="text-cyan-700 font-bold text-base">{token.symbol ? token.symbol : token.name}</span>
+                                            {token.image && <img src={token.image} alt={token.symbol || token.name} className="w-7 h-7 rounded-full" />}
+                                            <span className="text-cyan-700 font-bold text-base">{token.symbol || token.name}</span>
                                             <ChevronDown className="w-4 h-4 text-cyan-700" />
                                         </>
                                     );
@@ -346,8 +360,8 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                                     const token = selectedOutputTokenDetails || getTokenInfo(outputToken);
                                     return (
                                         <>
-                                            {token.image && <img src={token.image} alt={token.symbol ? token.symbol : token.name} className="w-7 h-7 rounded-full" />}
-                                            <span className="text-cyan-700 font-bold text-base">{token.symbol ? token.symbol : token.name}</span>
+                                            {token.image && <img src={token.image} alt={token.symbol || token.name} className="w-7 h-7 rounded-full" />}
+                                            <span className="text-cyan-700 font-bold text-base">{token.symbol || token.name}</span>
                                             <ChevronDown className="w-4 h-4 text-cyan-700" />
                                         </>
                                     );
@@ -439,22 +453,21 @@ export default function SwapTab({ walletAddress }: { walletAddress: string }) {
                 {/* Swap Button */}
                 {!transactionSignature && (
                     <Button
-                        className={`w-full mt-4 text-white font-medium ${
-                            (!quote || !amount || isSwapping || !hasSufficientBalance() || !isValidAmount() || !isSlippageAcceptable()) 
-                            ? 'bg-gray-400 cursor-not-allowed hover:bg-gray-400' 
+                        className={`w-full mt-4 text-white font-medium ${(!quote || !amount || isSwapping || !hasSufficientBalance() || !isValidAmount() || !isSlippageAcceptable())
+                            ? 'bg-gray-400 cursor-not-allowed hover:bg-gray-400'
                             : 'bg-cyan-500 hover:bg-cyan-600'
-                        }`}
+                            }`}
                         onClick={handleSwap}
                         disabled={!quote || !amount || isSwapping || !hasSufficientBalance() || !isValidAmount() || !isSlippageAcceptable()}
                     >
-                        {isSwapping ? "Swapping..." : 
-                         !amount ? "Enter an amount" :
-                         !isValidAmount() ? "Invalid amount" :
-                         !inputToken && !customInputMint ? "Select input token" :
-                         !outputToken && !customOutputMint ? "Select output token" :
-                         !hasSufficientBalance() ? "Insufficient Balance" :
-                         !isSlippageAcceptable() ? "High slippage" :
-                         "Confirm and Swap"}
+                        {isSwapping ? "Swapping..." :
+                            !amount ? "Enter an amount" :
+                                !isValidAmount() ? "Invalid amount" :
+                                    !inputToken && !customInputMint ? "Select input token" :
+                                        !outputToken && !customOutputMint ? "Select output token" :
+                                            !hasSufficientBalance() ? "Insufficient Balance" :
+                                                !isSlippageAcceptable() ? "High slippage" :
+                                                    "Confirm and Swap"}
                     </Button>
                 )}
 

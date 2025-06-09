@@ -5,7 +5,6 @@ import { ArrowRight, Copy, Download, Key, LogOut, Send, Upload } from "lucide-re
 import React, { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { Token, Transaction } from "@/lib/interfaces";
-import Image from "next/image";
 
 interface DashboardTabProps {
     walletAddress: string;
