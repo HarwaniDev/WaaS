@@ -5,6 +5,22 @@ import { prisma } from "@/lib/prisma";
 import axios from "axios";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getAssetDetails } from "@/utils/helpers";
+import { Token } from "@/lib/interfaces";
+
+interface TokenAccountResponse {
+  account: {
+    data: {
+      parsed: {
+        info: {
+          mint: string;
+          tokenAmount: {
+            uiAmount: number;
+          };
+        };
+      };
+    };
+  };
+}
 
 async function getAssets(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -58,7 +74,7 @@ async function getAssets(req: NextRequest) {
     };
 
     const [balanceResponse, tokenAccountResponse] = await Promise.all([
-      axios.post(`https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
+      axios.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
         "jsonrpc": "2.0",
         "id": 1,
         "method": "getBalance",
@@ -67,7 +83,7 @@ async function getAssets(req: NextRequest) {
           publicKey
         ]
       }),
-      axios.post(`https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
+      axios.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
         "jsonrpc": "2.0",
         "id": 1,
         "method": "getTokenAccountsByOwner",
@@ -86,14 +102,14 @@ async function getAssets(req: NextRequest) {
 
     const lamports = balanceResponse.data.result.value;
 
-    const promises = tokenAccountResponse.data.result.value.map((token: any) => {
+    const promises = tokenAccountResponse.data.result.value.map((token: TokenAccountResponse) => {
       if (token.account.data.parsed.info.tokenAmount.uiAmount === 0) {
         return;
       }
       return getAssetDetails(token.account.data.parsed.info.mint, token.account.data.parsed.info.tokenAmount.uiAmount);
     });
 
-    const result = await Promise.all(promises.filter((p: Promise<any>) => p !== undefined));
+    const result = await Promise.all(promises.filter((p: Promise<Token | number> | undefined) => p !== undefined));
     return NextResponse.json({
       solBalance: lamports / LAMPORTS_PER_SOL,
       result
