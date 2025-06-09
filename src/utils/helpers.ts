@@ -56,7 +56,7 @@ export async function getAssetDetails(mintAddress: string, amount?: number) {
             pricePerToken: pricePerToken,
             imageLink: response.data.result.content.files[0].uri
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.log("error getting asset details", error);
         return 0;
     }

@@ -1,5 +1,5 @@
 export class RateLimiter {
-    private queue: (() => Promise<any>)[] = [];
+    private queue: (() => Promise<unknown>)[] = [];
     private processing = false;
     private requestsPerSecond = 9;
     private lastRequestTime = 0;
