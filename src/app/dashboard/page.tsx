@@ -15,6 +15,11 @@ import toast from 'react-hot-toast';
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
+// Create axios instance with base URL
+const api = axios.create({
+    baseURL: typeof window !== 'undefined' ? window.location.origin : '',
+});
+
 export default function Dashboard() {
     const router = useRouter();
     const session = useSession();
@@ -53,7 +58,7 @@ export default function Dashboard() {
         })();
 
         async function getPublicKey(): Promise<string> {
-            const response = await axios.post("http://localhost:3000/api/getUserPubKey", {
+            const response = await api.post("/api/getUserPubKey", {
                 email: session.data?.user?.email
             });
 
@@ -65,10 +70,10 @@ export default function Dashboard() {
             try {
                 const walletAddress = await getPublicKey();
                 const [response1, response2] = await Promise.all([
-                    axios.post("http://localhost:3000/api/getAssets", {
+                    api.post("/api/getAssets", {
                         publicKey: walletAddress
                     }),
-                    axios.post("http://localhost:3000/api/getTransactions", {
+                    api.post("/api/getTransactions", {
                         publicKey: walletAddress
                     })
                 ]);
@@ -97,7 +102,7 @@ export default function Dashboard() {
                     const tokenTransactions = response2.data.transactions.filter((tx: Transaction) => tx.type === "TOKEN" && tx.mint);
                     const uniqueMints = [...new Set(tokenTransactions.map((tx: Transaction) => tx.mint))];
 
-                    const response = await axios.post("http://localhost:3000/api/getAssetDetails", {
+                    const response = await api.post("/api/getAssetDetails", {
                         publicKey: walletAddress,
                         uniqueMints: uniqueMints
                     });
