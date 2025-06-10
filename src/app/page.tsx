@@ -31,12 +31,12 @@ export default function Home() {
           <div className="flex items-center gap-4">
             {!session.data?.user ?
                <Button variant="outline" className="hidden sm:flex m-8 hover:bg-cyan-500 hover:text-white" onClick={() => {
-                signIn("google", {callbackUrl: "http://localhost:3000/dashboard"})
+                signIn("google", {callbackUrl: "https://waas.0xdevs.xyz/dashboard"})
                }}>
                 Login
               </Button> :
               <Button variant="outline" className="hidden sm:flex m-8 hover:bg-cyan-500 hover:text-white" onClick={() => {
-                signOut({callbackUrl: "http://localhost:3000"})
+                signOut({callbackUrl: "https://waas.0xdevs.xyz"})
                }}>
                 Log Out
               </Button> 
@@ -66,7 +66,7 @@ export default function Home() {
               if (session.data?.user) {
                 window.location.href = "/dashboard";
               } else {
-                signIn("google", {callbackUrl: "http://localhost:3000/dashboard"});
+                signIn("google", {callbackUrl: "https://waas.0xdevs.xyz/dashboard"});
               }
             }}>
               <Image src="/google.svg?height=20&width=20" width={20} height={20} alt="Google" className="mr-2" />
@@ -186,7 +186,7 @@ export default function Home() {
               if (session.data?.user) {
                 window.location.href = "/dashboard";
               } else {
-                signIn("google", {callbackUrl: "http://localhost:3000/dashboard"});
+                signIn("google", {callbackUrl: "https://waas.0xdevs.xyz/dashboard"});
               }
             }}>
               Create Your Wallet
