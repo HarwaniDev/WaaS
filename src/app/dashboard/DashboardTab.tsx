@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Copy, Download, Key, LogOut, Send, Upload } from "lucide-react";
+import { ArrowRight, Copy, Download, LogOut, Send, Upload } from "lucide-react";
 import React, { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { Token, Transaction } from "@/lib/interfaces";
