@@ -9,7 +9,7 @@ import { combine } from "shamir-secret-sharing";
 async function sendTransaction(req: NextRequest) {
 
     const session = await getServerSession(authOptions);
-    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+    const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
     const latestBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
     if (!session?.user?.email) {
