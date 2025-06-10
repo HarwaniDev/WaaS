@@ -133,6 +133,10 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "rhel-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -150,6 +154,7 @@ const config = {
     "db2"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db2": {
       "url": {
@@ -158,8 +163,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "datasource db2 {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL_2\")\n}\n\ngenerator client2 {\n  provider = \"prisma-client-js\"\n  output   = \"./generated/db2\"\n}\n\nmodel KeyShare2 {\n  id          String   @id @default(uuid())\n  solWalletId String\n  index       Int // Share index (e.g., 1, 2, 3)\n  share       Bytes\n  createdAt   DateTime @default(now())\n\n  @@unique([solWalletId, index]) // Prevent duplicate shares for same wallet\n}\n",
-  "inlineSchemaHash": "734c00b26d62b5609df7c44fe1f89c749501c375d3dbbb66ec7b4559d256bd6d",
+  "inlineSchema": "datasource db2 {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL_2\")\n}\n\ngenerator client2 {\n  provider      = \"prisma-client-js\"\n  output        = \"./generated/db2\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n}\n\nmodel KeyShare2 {\n  id          String   @id @default(uuid())\n  solWalletId String\n  index       Int // Share index (e.g., 1, 2, 3)\n  share       Bytes\n  createdAt   DateTime @default(now())\n\n  @@unique([solWalletId, index]) // Prevent duplicate shares for same wallet\n}\n",
+  "inlineSchemaHash": "d6235064b7eaba034aba2dd3eab7ebd270a8857feb6252b2e01f262c315238d4",
   "copyEngine": true
 }
 config.dirname = '/'

@@ -4,8 +4,9 @@ datasource db3 {
 }
 
 generator client3 {
-  provider = "prisma-client-js"
-  output   = "./generated/db3"
+  provider      = "prisma-client-js"
+  output        = "./generated/db3"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 model KeyShare3 {

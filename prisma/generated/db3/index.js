@@ -134,6 +134,10 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "rhel-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -151,6 +155,7 @@ const config = {
     "db3"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db3": {
       "url": {
@@ -159,8 +164,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "datasource db3 {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL_3\")\n}\n\ngenerator client3 {\n  provider = \"prisma-client-js\"\n  output   = \"./generated/db3\"\n}\n\nmodel KeyShare3 {\n  id          String   @id @default(uuid())\n  solWalletId String\n  index       Int // Share index (e.g., 1, 2, 3)\n  share       Bytes\n  createdAt   DateTime @default(now())\n\n  @@unique([solWalletId, index]) // Prevent duplicate shares for same wallet\n}\n",
-  "inlineSchemaHash": "4c1398d9934ecf5d7935e7713615814f2e09630f229f5d51d23da68fc2fff93e",
+  "inlineSchema": "datasource db3 {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL_3\")\n}\n\ngenerator client3 {\n  provider      = \"prisma-client-js\"\n  output        = \"./generated/db3\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n}\n\nmodel KeyShare3 {\n  id          String   @id @default(uuid())\n  solWalletId String\n  index       Int // Share index (e.g., 1, 2, 3)\n  share       Bytes\n  createdAt   DateTime @default(now())\n\n  @@unique([solWalletId, index]) // Prevent duplicate shares for same wallet\n}\n",
+  "inlineSchemaHash": "107f1509bd3cac839dbf2aca0e2a05a448de193fef2843e5fd6730dd69ac6d88",
   "copyEngine": true
 }
 
@@ -201,6 +206,10 @@ Object.assign(exports, Prisma)
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
 path.join(process.cwd(), "prisma/generated/db3/query_engine-windows.dll.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-rhel-openssl-3.0.x.so.node");
+path.join(process.cwd(), "prisma/generated/db3/libquery_engine-rhel-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "prisma/generated/db3/schema.prisma")

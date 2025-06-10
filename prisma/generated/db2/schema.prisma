@@ -4,8 +4,9 @@ datasource db2 {
 }
 
 generator client2 {
-  provider = "prisma-client-js"
-  output   = "./generated/db2"
+  provider      = "prisma-client-js"
+  output        = "./generated/db2"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 model KeyShare2 {
