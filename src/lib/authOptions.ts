@@ -86,19 +86,20 @@ export const authOptions: AuthOptions = {
             publicKeys.push(wallet.publicKey);
           }
           publicKeys.push(publicKey);
-          const response = await axios.put(`https://api.helius.xyz/v0/webhooks/${process.env.WEBHOOK_ID}?api-key=${process.env.HELIUS_API_KEY}`, {
-            "webhookID": process.env.WEBHOOK_ID,
-            "project": "e398da09-dc8c-40b3-80c6-58321357ded8",
-            "wallet": "devharwani.work@gmail.com",
-            "webhookURL": "https://httpdump.app/dumps/336a1141-d656-4f29-b898-0b5f06e71169",
-            "accountAddresses": publicKeys,
+          await axios.put(`https://api.helius.xyz/v0/webhooks/${process.env.WEBHOOK_ID}?api-key=${process.env.HELIUS_API_KEY}`, {
+            "webhookURL": "https://waas.0xdevs.xyz/api/addTransaction",
             "transactionTypes": [
               "TRANSFER"
             ],
+            "accountAddresses": publicKeys,
+            //   "accountAddressOwners": [
+            //     "<string>"
+            //   ],
             "webhookType": "enhanced",
+            //   "authHeader": "<string>",
             "encoding": "jsonParsed"
+            //   "txnStatus": "<string>"
           });
-          console.log(response.data);
         }
       } catch (error) {
         console.log(error);
