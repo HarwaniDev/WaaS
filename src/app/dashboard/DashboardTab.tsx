@@ -59,14 +59,6 @@ export default function DashboardTab({ walletAddress, balance, tokens, solBalanc
                                 </div>
                                 <div className="flex flex-col gap-3 items-center">
                                     <Button 
-                                        variant="outline" 
-                                        className="w-3/4 gap-2 justify-start cursor-pointer"
-                                        onClick={onShowSecretKey}
-                                    >
-                                        <Key className="h-4 w-4" />
-                                        View Secret Key
-                                    </Button>
-                                    <Button 
                                         variant="destructive" 
                                         className="w-3/4 gap-2 justify-start cursor-pointer"
                                         onClick={onLogout}

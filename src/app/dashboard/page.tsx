@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import axios from "axios";
 import { Token, Transaction } from "@/lib/interfaces"
 import { getSolanaPrice } from "@/utils/helpers"
@@ -132,6 +132,10 @@ export default function Dashboard() {
         });
     };
 
+    const handleLogout = async () => {
+        await signOut({ callbackUrl: 'https://waas.0xdevs.xyz' });
+    };
+
     if (session.status === "loading") {
         return (
             <div className="flex justify-center items-center min-h-screen bg-slate-50">
@@ -191,6 +195,7 @@ export default function Dashboard() {
                                 user={session.data?.user ? { image: session.data.user.image ?? undefined } : undefined}
                                 setActiveTab={setActiveTab}
                                 firstName={firstName}
+                                onLogout={handleLogout}
                             />
                         </div>
                     )}
