@@ -19,10 +19,9 @@ interface DashboardTabProps {
     setActiveTab: (tab: 'dashboard' | 'send' | 'receive' | 'swap') => void;
     firstName?: string;
     onLogout?: () => void;
-    onShowSecretKey?: () => void;
 }
 
-export default function DashboardTab({ walletAddress, balance, tokens, solBalance, solPrice, transactions, assetDetails, copyToClipboard, user, setActiveTab, firstName, onLogout, onShowSecretKey }: DashboardTabProps) {
+export default function DashboardTab({ walletAddress, balance, tokens, solBalance, solPrice, transactions, assetDetails, copyToClipboard, user, setActiveTab, firstName, onLogout }: DashboardTabProps) {
     const [showAllTransactions, setShowAllTransactions] = useState(false);
     const displayedTransactions = showAllTransactions ? transactions : transactions.slice(0, 3);
 
